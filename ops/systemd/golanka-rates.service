@@ -1,0 +1,9 @@
+[Unit]
+Description=Refresh Go Lanka exchange rates
+After=network-online.target golanka.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/golanka/golanka.env
+ExecStart=/bin/sh -c 'exec /usr/bin/curl --fail --silent --show-error -X POST -H "Authorization: Bearer $CRON_SECRET" http://127.0.0.1:3000/api/cron/rates'

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+: "${BACKUP_DATABASE_URL:?BACKUP_DATABASE_URL is required}"
+: "${BACKUP_AGE_RECIPIENT:?BACKUP_AGE_RECIPIENT is required}"
+: "${BACKUP_RCLONE_REMOTE:?BACKUP_RCLONE_REMOTE is required}"
+: "${STORAGE_ROOT:?STORAGE_ROOT is required}"
+
+timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
+workdir="$(mktemp -d /var/backups/golanka.XXXXXX)"
+trap 'rm -rf "$workdir"' EXIT
+
+pg_dump "$BACKUP_DATABASE_URL" --format=custom --no-owner --no-privileges \
+  --file="$workdir/database.dump"
+
+tar -czf "$workdir/media.tar.gz" -C "$STORAGE_ROOT" .
+
+cat > "$workdir/manifest.txt" <<EOF
+timestamp=$timestamp
+host=$(hostname -f)
+database=postgresql
+media_root=$STORAGE_ROOT
+EOF
+
+archive="$workdir/golanka-$timestamp.tar.gz.age"
+tar -czf - -C "$workdir" database.dump media.tar.gz manifest.txt \
+  | age --recipient "$BACKUP_AGE_RECIPIENT" --output "$archive"
+
+rclone copyto "$archive" "$BACKUP_RCLONE_REMOTE/daily/golanka-$timestamp.tar.gz.age"
+rclone delete "$BACKUP_RCLONE_REMOTE/daily" --min-age 30d
+
+echo "Backup uploaded: golanka-$timestamp.tar.gz.age"

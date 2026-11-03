@@ -1,0 +1,13 @@
+node_modules
+.next
+.git
+.env*
+!.env.example
+.data
+coverage
+test-results
+playwright-report
+docs
+tests
+*.md
+db/bootstrap.local.sql

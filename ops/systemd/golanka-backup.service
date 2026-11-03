@@ -1,0 +1,13 @@
+[Unit]
+Description=Nightly Go Lanka encrypted backup
+After=network-online.target postgresql.service golanka.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+EnvironmentFile=/etc/golanka/backup.env
+ExecStart=/usr/local/bin/golanka-backup
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7

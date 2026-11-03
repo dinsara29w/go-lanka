@@ -1,0 +1,34 @@
+[Unit]
+Description=Go Lanka Next.js application
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=golanka
+Group=golanka
+WorkingDirectory=/opt/golanka/current
+EnvironmentFile=/etc/golanka/golanka.env
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=HOSTNAME=127.0.0.1
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=true
+LockPersonality=true
+ReadWritePaths=/var/lib/golanka /opt/golanka/current/.next/cache
+CapabilityBoundingSet=
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target
