@@ -2,19 +2,21 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarDays, MapPin, MessageCircle } from "lucide-react";
+import { Check, MessageCircle } from "lucide-react";
 
 import { DeferredBookingSection } from "@/components/booking/deferred-booking-section";
 import { Price } from "@/components/currency/currency-provider";
-import { ReviewAggregateSummary, ReviewCard } from "@/components/reviews/review-card";
+import { PackageGrid } from "@/components/packages/package-card";
+import { FaqList, QuoteCard } from "@/components/site/blocks";
+import { CtaBox, PageBanner, SectionHeading, Stars } from "@/components/site/section";
 import { JsonLd } from "@/components/seo/json-ld";
-import { Button } from "@/components/ui/button";
+import { siteImages } from "@/content/site-images";
 import { strings } from "@/content/strings";
 import { formatDuration, formatLkr } from "@/lib/currency";
 import { getSiteUrl } from "@/lib/site";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { getPublicAvailability } from "@/server/repositories/availability";
-import { getPublishedPackageBySlug } from "@/server/repositories/packages";
+import { getPublishedPackageBySlug, listFeaturedPackages } from "@/server/repositories/packages";
 import { listApprovedPhotos } from "@/server/repositories/photos";
 import {
   getPackageReviewAggregate,
@@ -92,291 +94,241 @@ export default async function PackageDetailPage({ params }: { params: Promise<{ 
     },
   ];
   const siteUrl = getSiteUrl();
+  const similar = (await listFeaturedPackages(4))
+    .filter((other) => other.id !== item.id)
+    .slice(0, 3);
+  const banner = item.heroImage
+    ? { src: item.heroImage, alt: item.heroImageAlt ?? item.title }
+    : siteImages.pidurangala;
+  const chips = [
+    formatDuration(item.durationDays),
+    ...(item.destinations.length > 0
+      ? [`${item.destinations.length} ${strings.packages.stopsLabel}`]
+      : []),
+    ...item.activities.slice(0, 3),
+  ];
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-16">
-      <Link
-        href="/packages"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft aria-hidden="true" className="size-4" />
-        {strings.packages.backToPackages}
-      </Link>
+    <>
+      <PageBanner
+        title={item.title}
+        intro={item.summary}
+        image={banner}
+        crumbs={[{ href: "/packages", label: strings.nav.packages }, { label: item.title }]}
+      />
 
-      <div className="mt-6 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
-        <div>
-          {item.heroImage ? (
-            <Image
-              src={item.heroImage}
-              alt={item.heroImageAlt ?? item.title}
-              width={1200}
-              height={800}
-              sizes="(min-width: 1024px) 60vw, 100vw"
-              priority
-              className="h-72 w-full rounded-2xl object-cover sm:h-96"
-            />
-          ) : (
-            <div
-              aria-hidden="true"
-              className="h-72 w-full rounded-2xl bg-[radial-gradient(circle_at_20%_20%,oklch(0.92_0.05_160),transparent_50%),radial-gradient(circle_at_80%_70%,oklch(0.94_0.05_80),transparent_55%)] sm:h-96"
-            />
-          )}
-        </div>
-
-        <div className="space-y-5">
-          <div className="space-y-3">
-            <h1 className="font-heading text-4xl font-semibold tracking-tight text-balance">
-              {item.title}
-            </h1>
-            <p className="text-base leading-7 text-muted-foreground">{item.summary}</p>
-          </div>
-
-          <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-            <span className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5">
-              <CalendarDays aria-hidden="true" className="size-4" />
-              {formatDuration(item.durationDays)}
-            </span>
-            {item.activities.slice(0, 4).map((activity) => (
-              <span
-                key={activity}
-                className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5"
+      <div className="mx-auto grid max-w-[60rem] gap-10 px-4 pt-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:px-0">
+        <div className="min-w-0">
+          <ul className="flex flex-wrap gap-2.5">
+            {chips.map((chip) => (
+              <li
+                key={chip}
+                className="rounded-full bg-tint px-3.5 py-1.5 text-[0.8125rem] font-semibold text-brand"
               >
-                <MapPin aria-hidden="true" className="size-4" />
-                {activity}
-              </span>
+                {chip}
+              </li>
             ))}
-          </div>
+          </ul>
 
-          <div className="rounded-xl border border-border bg-muted/30 p-4">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">
-              {strings.packages.indicativePrice}
-            </p>
-            <p className="mt-1 font-heading text-3xl font-semibold">
-              <Price amountLkr={item.basePriceLkr} />
-            </p>
-            <p className="mt-2 text-xs text-muted-foreground">{strings.currency.indicativeNote}</p>
-          </div>
-
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Button asChild size="lg">
-              <Link href="/contact">{strings.packages.enquiryCta}</Link>
-            </Button>
-            {whatsappHref ? (
-              <Button asChild size="lg" variant="outline">
-                <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
-                  <MessageCircle aria-hidden="true" />
-                  {strings.packages.whatsappCta}
-                </a>
-              </Button>
-            ) : null}
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-12">
-        <DeferredBookingSection
-          packageId={item.id}
-          availability={availability}
-          siteKey={turnstileSiteKey}
-        />
-      </div>
-
-      {item.gallery.length > 0 ? (
-        <section className="mt-12 space-y-4">
-          <h2 className="font-heading text-2xl font-semibold tracking-tight">
-            {strings.packages.galleryHeading}
-          </h2>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {item.gallery.map((image) => (
-              <Image
-                key={image.path}
-                src={image.path}
-                alt={image.alt}
-                width={600}
-                height={400}
-                sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                className="h-52 w-full rounded-xl border border-border object-cover"
-              />
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {travellerPhotos.length > 0 ? (
-        <section className="mt-12 space-y-4">
-          <div className="flex flex-wrap items-end justify-between gap-2">
-            <h2 className="font-heading text-2xl font-semibold tracking-tight">
-              {strings.photos.heading}
+          <section className="mt-8">
+            <h2 className="font-heading text-[1.625rem] font-bold text-ink">
+              {strings.packages.overview}
             </h2>
-            <Link href="/photos" className="text-sm text-muted-foreground hover:text-foreground">
-              {strings.photos.submitHeading}
-            </Link>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {travellerPhotos.slice(0, 8).map((photo) => (
-              <Image
-                key={photo.id}
-                src={`/photos/${photo.id}`}
-                alt={photo.altText ?? photo.caption ?? "Traveller photo"}
-                width={400}
-                height={300}
-                sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-                className="h-40 w-full rounded-xl border border-border object-cover"
-              />
-            ))}
-          </div>
-        </section>
-      ) : null}
+            {item.destinations.length > 0 ? (
+              <p className="mt-3 text-[0.9375rem] leading-relaxed text-stone">
+                {item.destinations.map((destination) => destination.name).join(" → ")}
+              </p>
+            ) : null}
+            {item.gallery.length > 0 ? (
+              <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {item.gallery.slice(0, 6).map((image) => (
+                  <span
+                    key={image.path}
+                    className="zoom-img relative block h-28 overflow-hidden rounded-xl sm:h-36"
+                  >
+                    <Image
+                      src={image.path}
+                      alt={image.alt}
+                      fill
+                      sizes="(min-width: 1024px) 200px, 33vw"
+                      className="object-cover"
+                    />
+                  </span>
+                ))}
+              </div>
+            ) : null}
+          </section>
 
-      <div className="mt-12 grid gap-8 lg:grid-cols-[1.3fr_0.7fr] lg:items-start">
-        <section className="space-y-4">
-          <h2 className="font-heading text-2xl font-semibold tracking-tight">
-            {strings.packages.itineraryHeading}
-          </h2>
-
-          {item.itinerary.length === 0 ? (
-            <p className="text-sm leading-6 text-muted-foreground">
-              {strings.packages.noItinerary}
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {item.itinerary.map((day) => (
-                <details
-                  key={day.dayNumber}
-                  className="group rounded-xl border border-border bg-card p-4 open:bg-muted/20"
-                >
-                  <summary className="cursor-pointer list-none font-medium [&::-webkit-details-marker]:hidden">
-                    <span className="text-sm text-muted-foreground">
-                      {strings.packages.dayLabel} {day.dayNumber}
+          <section className="mt-10">
+            <h2 className="font-heading text-[1.625rem] font-bold text-ink">
+              {strings.packages.itineraryHeading}
+            </h2>
+            {item.itinerary.length === 0 ? (
+              <p className="mt-3 text-sm leading-6 text-stone">{strings.packages.noItinerary}</p>
+            ) : (
+              <ol className="mt-4 border-t border-line">
+                {item.itinerary.map((day) => (
+                  <li key={day.dayNumber} className="flex gap-5 border-b border-line py-5">
+                    <span className="flex size-12 shrink-0 flex-col items-center justify-center rounded-xl bg-tint text-brand">
+                      <span className="text-[0.625rem] font-semibold uppercase">
+                        {strings.packages.dayLabel}
+                      </span>
+                      <span className="font-heading text-lg leading-none font-extrabold">
+                        {day.dayNumber}
+                      </span>
                     </span>
-                    <span className="mt-1 block font-heading text-lg">{day.title}</span>
-                  </summary>
-                  <div className="mt-3 space-y-3 text-sm leading-6 text-muted-foreground">
-                    <p>{day.description}</p>
-                    <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs">
-                      {day.destinationName ? (
-                        <span>
-                          {strings.packages.destinationLabel}: {day.destinationName}
-                        </span>
-                      ) : null}
-                      {day.accommodation ? (
-                        <span>
-                          {strings.packages.accommodationLabel}: {day.accommodation}
-                        </span>
-                      ) : null}
-                      {day.meals.length > 0 ? (
-                        <span>
-                          {strings.packages.mealLabel}: {day.meals.join(", ")}
-                        </span>
+                    <div className="min-w-0">
+                      <h3 className="font-heading text-[1.0625rem] font-bold text-ink">
+                        {day.title}
+                      </h3>
+                      <p className="mt-1 text-sm leading-relaxed text-stone">{day.description}</p>
+                      {day.destinationName || day.accommodation || day.meals.length > 0 ? (
+                        <p className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs text-stone">
+                          {day.destinationName ? (
+                            <span>
+                              {strings.packages.destinationLabel}: {day.destinationName}
+                            </span>
+                          ) : null}
+                          {day.accommodation ? (
+                            <span>
+                              {strings.packages.accommodationLabel}: {day.accommodation}
+                            </span>
+                          ) : null}
+                          {day.meals.length > 0 ? (
+                            <span>
+                              {strings.packages.mealLabel}: {day.meals.join(", ")}
+                            </span>
+                          ) : null}
+                        </p>
                       ) : null}
                     </div>
-                  </div>
-                </details>
-              ))}
+                  </li>
+                ))}
+              </ol>
+            )}
+          </section>
+
+          {item.inclusions.length > 0 || item.exclusions.length > 0 ? (
+            <div className="mt-8 grid gap-4 sm:grid-cols-2">
+              <IncludedList title={strings.packages.inclusionsHeading} items={item.inclusions} />
+              <IncludedList title={strings.packages.exclusionsHeading} items={item.exclusions} />
             </div>
-          )}
-        </section>
+          ) : null}
 
-        <aside className="space-y-6">
-          <section className="rounded-xl border border-border bg-card p-5">
-            <h2 className="font-heading text-lg font-semibold">
-              {strings.packages.inclusionsHeading}
-            </h2>
-            <ul className="mt-3 space-y-2 text-sm leading-6 text-muted-foreground">
-              {item.inclusions.map((inclusion) => (
-                <li key={inclusion}>• {inclusion}</li>
-              ))}
-            </ul>
-          </section>
+          <div className="mt-10">
+            <DeferredBookingSection
+              packageId={item.id}
+              availability={availability}
+              siteKey={turnstileSiteKey}
+            />
+          </div>
 
-          <section className="rounded-xl border border-border bg-card p-5">
-            <h2 className="font-heading text-lg font-semibold">
-              {strings.packages.exclusionsHeading}
-            </h2>
-            <ul className="mt-3 space-y-2 text-sm leading-6 text-muted-foreground">
-              {item.exclusions.map((exclusion) => (
-                <li key={exclusion}>• {exclusion}</li>
-              ))}
-            </ul>
-          </section>
-
-          {item.destinations.length > 0 ? (
-            <section className="rounded-xl border border-border bg-card p-5">
-              <h2 className="font-heading text-lg font-semibold">
-                {strings.packages.destinationsHeading}
-              </h2>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {item.destinations.map((destination) => (
-                  <span
-                    key={destination.id}
-                    className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground"
-                  >
-                    {destination.name}
+          {travellerPhotos.length > 0 ? (
+            <section className="mt-10">
+              <div className="flex flex-wrap items-end justify-between gap-2">
+                <h2 className="font-heading text-[1.625rem] font-bold text-ink">
+                  {strings.photos.heading}
+                </h2>
+                <Link href="/photos" className="text-sm font-semibold text-brand hover:underline">
+                  {strings.photos.submitHeading}
+                </Link>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {travellerPhotos.slice(0, 8).map((photo) => (
+                  <span key={photo.id} className="relative block h-36 overflow-hidden rounded-xl">
+                    <Image
+                      src={`/photos/${photo.id}`}
+                      alt={photo.altText ?? photo.caption ?? strings.photos.heading}
+                      fill
+                      sizes="(min-width: 640px) 25vw, 50vw"
+                      className="object-cover"
+                    />
                   </span>
                 ))}
               </div>
             </section>
           ) : null}
+
+          {reviews.length > 0 ? (
+            <section className="mt-10">
+              <h2 className="font-heading text-[1.625rem] font-bold text-ink">
+                {strings.reviews.heading}
+              </h2>
+              <p className="mt-2 flex items-center gap-3 text-sm text-stone">
+                <Stars rating={reviewAggregate.average} />
+                <span>
+                  <b className="text-ink">{reviewAggregate.average.toFixed(1)}</b>{" "}
+                  {strings.reviews.outOfFive} · {reviewAggregate.count}{" "}
+                  {strings.reviews.reviewsCount}
+                </span>
+              </p>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                {reviews.map((review) => (
+                  <QuoteCard
+                    key={review.id}
+                    rating={review.rating}
+                    body={review.body}
+                    name={review.authorName}
+                    country={review.country}
+                  />
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          <section className="mt-10">
+            <h2 className="font-heading text-[1.625rem] font-bold text-ink">
+              {strings.travelInfo.faqHeading}
+            </h2>
+            <FaqList faqs={packageFaqs} className="mt-4 max-w-none" />
+          </section>
+        </div>
+
+        <aside className="-order-1 lg:sticky lg:top-24 lg:order-none lg:self-start">
+          <div className="rounded-2xl border border-line bg-white p-6 shadow-panel">
+            <p className="text-xs text-stone">{strings.site.from}</p>
+            <p className="mt-1 font-heading text-[2rem] leading-tight font-extrabold text-brand">
+              <Price amountLkr={item.basePriceLkr} />
+            </p>
+            <p className="mt-2 text-xs leading-5 text-stone">{strings.currency.indicativeNote}</p>
+            <a href="#booking" className="btn-pill mt-5 w-full">
+              {strings.packages.requestQuote}
+            </a>
+            {whatsappHref ? (
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-outline-pill mt-3 w-full gap-2"
+              >
+                <MessageCircle aria-hidden="true" className="size-4" />
+                {strings.packages.whatsappCta}
+              </a>
+            ) : null}
+            <p className="mt-3 text-center text-xs text-stone">{strings.packages.noPaymentNote}</p>
+          </div>
         </aside>
       </div>
 
-      <section className="mt-12 rounded-2xl border border-border bg-muted/30 p-6 sm:p-8">
-        <h2 className="font-heading text-2xl font-semibold tracking-tight">
-          {strings.packages.enquiryHeading}
-        </h2>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-          {strings.packages.enquiryBody}
-        </p>
-        <div className="mt-5 flex flex-wrap gap-3">
-          <Button asChild>
-            <Link href="/contact">{strings.packages.enquiryCta}</Link>
-          </Button>
-          {whatsappHref ? (
-            <Button asChild variant="outline">
-              <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
-                {strings.packages.whatsappCta}
-              </a>
-            </Button>
-          ) : null}
-        </div>
-      </section>
+      {similar.length > 0 ? (
+        <section className="px-4 pt-[4.5rem] sm:px-6">
+          <SectionHeading
+            eyebrow={strings.packages.similarEyebrow}
+            title={strings.packages.similarHeading}
+            accent={strings.packages.similarAccent}
+          />
+          <div className="mx-auto mt-8 max-w-[60rem]">
+            <PackageGrid packages={similar} />
+          </div>
+        </section>
+      ) : null}
 
-      <section className="mt-12 space-y-4">
-        <h2 className="font-heading text-2xl font-semibold tracking-tight">
-          {strings.travelInfo.faqHeading}
-        </h2>
-        {packageFaqs.map((faq) => (
-          <details key={faq.question} className="rounded-xl border border-border bg-card p-4">
-            <summary className="cursor-pointer list-none font-medium [&::-webkit-details-marker]:hidden">
-              {faq.question}
-            </summary>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">{faq.answer}</p>
-          </details>
-        ))}
-      </section>
-
-      <section className="mt-12 space-y-5">
-        <h2 className="font-heading text-2xl font-semibold tracking-tight">
-          {strings.reviews.heading}
-        </h2>
-        {reviews.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-border p-5 text-sm text-muted-foreground">
-            {strings.packages.reviewsPlaceholder}
-          </p>
-        ) : (
-          <>
-            <ReviewAggregateSummary
-              count={reviewAggregate.count}
-              average={reviewAggregate.average}
-            />
-            <div className="grid gap-5 md:grid-cols-2">
-              {reviews.map((review) => (
-                <ReviewCard key={review.id} review={review} showPackage={false} />
-              ))}
-            </div>
-          </>
-        )}
-      </section>
+      <CtaBox
+        title={strings.packages.detailCtaHeading}
+        body={strings.packages.detailCtaBody}
+        href="#booking"
+        label={strings.packages.requestQuote}
+      />
 
       <JsonLd
         data={{
@@ -454,6 +406,28 @@ export default async function PackageDetailPage({ params }: { params: Promise<{ 
           })),
         }}
       />
-    </div>
+    </>
+  );
+}
+
+function IncludedList({ title, items }: { title: string; items: string[] }) {
+  return (
+    <section className="rounded-2xl border border-line bg-white p-6 shadow-card">
+      <h2 className="font-heading text-[1.0625rem] font-bold text-ink">{title}</h2>
+      {items.length > 0 ? (
+        <ul className="mt-4 space-y-2.5">
+          {items.map((entry) => (
+            <li key={entry} className="flex items-start gap-2.5 text-sm text-[#34443C]">
+              <span className="mt-0.5 flex size-[1.125rem] shrink-0 items-center justify-center rounded-full bg-[#D3ECDD] text-brand">
+                <Check aria-hidden="true" className="size-2.5" strokeWidth={3.5} />
+              </span>
+              {entry}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-3 text-sm text-stone">{strings.packages.listPending}</p>
+      )}
+    </section>
   );
 }

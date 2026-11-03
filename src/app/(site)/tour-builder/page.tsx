@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 
+import { PageBanner } from "@/components/site/section";
 import { TourBuilderExperience } from "@/components/tour-builder/tour-builder-experience";
+import { fallbackImage, siteImages } from "@/content/site-images";
 import { strings } from "@/content/strings";
 import { getTourBuilderContext } from "@/server/ai/context";
+import { listMapDestinations } from "@/server/repositories/destinations";
 
 export const dynamic = "force-dynamic";
 
@@ -13,31 +16,55 @@ export const metadata: Metadata = {
   alternates: { canonical: "/tour-builder" },
 };
 
-export default async function TourBuilderPage() {
-  const context = await getTourBuilderContext();
+function clampParam(value: string | undefined, min: number, max: number, fallback: number) {
+  const parsed = Number.parseInt(value ?? "", 10);
+  return Number.isFinite(parsed) ? Math.min(Math.max(parsed, min), max) : fallback;
+}
+
+export default async function TourBuilderPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ days?: string; adults?: string }>;
+}) {
+  const [params, context, mapDestinations] = await Promise.all([
+    searchParams,
+    getTourBuilderContext(),
+    listMapDestinations(),
+  ]);
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() || null;
+  const images = new Map(
+    mapDestinations
+      .filter((destination) => destination.heroImage)
+      .map((destination) => [
+        destination.slug,
+        { src: destination.heroImage as string, alt: destination.heroImageAlt ?? destination.name },
+      ]),
+  );
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-      <div className="max-w-2xl space-y-4">
-        <p className="text-sm font-medium text-muted-foreground">{strings.nav.tourBuilder}</p>
-        <h1 className="font-heading text-4xl font-semibold tracking-tight sm:text-5xl">
-          {strings.tourBuilder.heading}
-        </h1>
-        <p className="text-base leading-7 text-muted-foreground">{strings.tourBuilder.intro}</p>
-      </div>
+    <>
+      <PageBanner
+        title={strings.tourBuilder.heading}
+        intro={strings.tourBuilder.intro}
+        image={siteImages.ella}
+        crumbs={[{ label: strings.nav.tourBuilder }]}
+      />
 
-      <div className="mt-10">
+      <div className="mx-auto max-w-[60rem] px-4 pt-10 pb-20 sm:px-6 lg:px-0">
         <TourBuilderExperience
-          destinations={context.destinations.map((destination) => ({
+          destinations={context.destinations.map((destination, index) => ({
             name: destination.name,
             slug: destination.slug,
             lat: destination.lat,
             lng: destination.lng,
+            region: destination.region,
+            image: images.get(destination.slug) ?? fallbackImage(index),
           }))}
           siteKey={siteKey}
+          initialDays={clampParam(params.days, 1, 21, 7)}
+          initialAdults={clampParam(params.adults, 1, 10, 2)}
         />
       </div>
-    </div>
+    </>
   );
 }

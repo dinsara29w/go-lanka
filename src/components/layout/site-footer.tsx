@@ -1,131 +1,94 @@
+import Image from "next/image";
 import Link from "next/link";
 
-import { BrandMark } from "@/components/brand/brand-mark";
+import { Wordmark } from "@/components/layout/wordmark";
+import { siteImages } from "@/content/site-images";
 import { strings } from "@/content/strings";
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import type { SiteSettings } from "@/server/repositories/site-settings";
 
 const exploreLinks = [
-  { href: "/packages", label: strings.nav.packages },
-  { href: "/map", label: strings.nav.map },
-  { href: "/travel-info", label: strings.nav.travelInfo },
-  { href: "/reviews", label: strings.nav.reviews },
+  { href: "/packages", label: strings.site.tourPackages },
+  { href: "/map", label: strings.site.destinations },
+  { href: "/tour-builder", label: strings.nav.tourBuilder },
   { href: "/photos", label: strings.nav.photos },
 ];
 
 const companyLinks = [
-  { href: "/tour-builder", label: strings.nav.tourBuilder },
   { href: "/about", label: strings.nav.about },
-  { href: "/contact", label: strings.nav.contact },
-  { href: "/privacy", label: strings.footer.privacy },
-  { href: "/terms", label: strings.footer.terms },
+  { href: "/contact", label: strings.site.enquire },
+  { href: "/reviews", label: strings.nav.reviews },
+  { href: "/travel-info", label: strings.nav.travelInfo },
 ];
+
+const headingClass = "text-xs font-bold tracking-[0.08em] text-amber uppercase";
+const linkClass = "w-fit transition-colors hover:text-white";
 
 export function SiteFooter({ settings }: { settings: SiteSettings | null }) {
   const socials = Object.entries(settings?.socials ?? {});
+  const whatsappHref = settings?.whatsappNumber
+    ? buildWhatsAppUrl(settings.whatsappNumber, strings.whatsapp.defaultMessage)
+    : null;
+  const hasContact = Boolean(settings?.contactEmail || settings?.phone);
 
   return (
-    <footer className="relative overflow-hidden bg-ocean-deep text-ivory/75">
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-32 right-[-6rem] size-[26rem] rounded-full border border-gold/15" />
-        <div className="absolute -top-20 right-[-2rem] size-[18rem] rounded-full border border-gold/15" />
-        <div className="absolute -bottom-40 left-[-10rem] size-[30rem] rounded-full bg-[radial-gradient(circle,rgba(201,150,43,0.12),transparent_65%)]" />
-      </div>
-
-      <div className="relative mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:px-6 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
-        <div className="space-y-5 md:col-span-2 lg:col-span-1 lg:pr-8">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
-          >
-            <span className="relative flex size-11 items-center justify-center rounded-full bg-ivory text-ocean">
-              <BrandMark className="size-7" />
-              <span
-                aria-hidden="true"
-                className="absolute inset-0 rounded-full ring-1 ring-inset ring-gold/60"
-              />
-            </span>
-            <span className="flex flex-col">
-              <span className="font-heading text-lg leading-none font-semibold text-ivory">
-                {strings.common.siteName}
-              </span>
-              <span className="mt-1.5 text-[0.6rem] font-semibold tracking-[0.26em] text-gold-light uppercase">
-                Ceylon · Sri Lanka
-              </span>
-            </span>
-          </Link>
-          <p className="max-w-sm text-sm leading-6">{strings.home.description}</p>
-        </div>
-
-        <div className="space-y-4">
-          <h2 className="text-[0.65rem] font-semibold tracking-[0.24em] text-gold-light uppercase">
-            {strings.footer.exploreHeading}
-          </h2>
-          <nav aria-label="Footer explore" className="flex flex-col gap-2.5 text-sm">
-            {exploreLinks.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="w-fit text-ivory/70 transition-colors hover:text-ivory focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-
-        <div className="space-y-4">
-          <h2 className="text-[0.65rem] font-semibold tracking-[0.24em] text-gold-light uppercase">
-            {strings.footer.companyHeading}
-          </h2>
-          <nav aria-label="Footer company" className="flex flex-col gap-2.5 text-sm">
-            {companyLinks.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="w-fit text-ivory/70 transition-colors hover:text-ivory focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-
-        <div className="space-y-4">
-          <h2 className="text-[0.65rem] font-semibold tracking-[0.24em] text-gold-light uppercase">
-            {strings.footer.contactHeading}
-          </h2>
-          <div className="flex flex-col gap-2.5 text-sm">
-            {settings?.contactEmail ? (
+    <footer className="relative isolate overflow-hidden bg-footer text-sm text-[#CBD5E1]">
+      <Image
+        src={siteImages.galle.src}
+        alt=""
+        fill
+        sizes="100vw"
+        className="-z-10 object-cover opacity-[0.18]"
+      />
+      <div className="mx-auto max-w-[65rem] px-4 pt-14 pb-6 sm:px-6 lg:px-0">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))]">
+          <div className="flex max-w-xs flex-col gap-3 sm:col-span-2 lg:col-span-1">
+            <Wordmark inverted className="w-fit" />
+            <p className="leading-relaxed">{strings.site.tagline}</p>
+            {whatsappHref ? (
               <a
-                href={`mailto:${settings.contactEmail}`}
-                className="w-fit break-all text-ivory/70 transition-colors hover:text-ivory"
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-fit text-amber hover:underline"
               >
+                {strings.site.whatsappPrefix} · {settings?.whatsappNumber}
+              </a>
+            ) : null}
+          </div>
+
+          <nav aria-label="Footer explore" className="flex flex-col gap-2.5">
+            <h2 className={headingClass}>{strings.footer.exploreHeading}</h2>
+            {exploreLinks.map((item) => (
+              <Link key={item.href} href={item.href} className={linkClass}>
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
+          <nav aria-label="Footer company" className="flex flex-col gap-2.5">
+            <h2 className={headingClass}>{strings.footer.companyHeading}</h2>
+            {companyLinks.map((item) => (
+              <Link key={item.href} href={item.href} className={linkClass}>
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="flex flex-col gap-2.5">
+            <h2 className={headingClass}>{strings.footer.contactHeading}</h2>
+            {settings?.contactEmail ? (
+              <a href={`mailto:${settings.contactEmail}`} className={`${linkClass} break-all`}>
                 {settings.contactEmail}
               </a>
             ) : null}
             {settings?.phone ? (
-              <a
-                href={`tel:${settings.phone.replace(/[^\d+]/g, "")}`}
-                className="w-fit text-ivory/70 transition-colors hover:text-ivory"
-              >
+              <a href={`tel:${settings.phone.replace(/[^\d+]/g, "")}`} className={linkClass}>
                 {settings.phone}
               </a>
             ) : null}
-            {settings?.whatsappNumber ? (
-              <a
-                href={`https://wa.me/${settings.whatsappNumber.replace(/[^\d]/g, "")}`}
-                target="_blank"
-                rel="noreferrer"
-                className="w-fit text-ivory/70 transition-colors hover:text-ivory"
-              >
-                {strings.whatsapp.label}
-              </a>
-            ) : null}
-            {!settings?.contactEmail && !settings?.phone && !settings?.whatsappNumber ? (
-              <Link
-                href="/contact"
-                className="w-fit text-ivory/70 underline-offset-4 transition-colors hover:text-ivory hover:underline"
-              >
+            {!hasContact ? (
+              <Link href="/contact" className={linkClass}>
                 {strings.contact.heading}
               </Link>
             ) : null}
@@ -137,7 +100,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings | null }) {
                     href={url}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-ivory/60 underline-offset-4 transition-colors hover:text-gold hover:underline"
+                    className="transition-colors hover:text-amber"
                   >
                     {label.charAt(0).toUpperCase() + label.slice(1)}
                   </a>
@@ -146,22 +109,20 @@ export function SiteFooter({ settings }: { settings: SiteSettings | null }) {
             ) : null}
           </div>
         </div>
-      </div>
 
-      <div className="relative border-t border-ivory/10">
-        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 text-xs text-ivory/50 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="mt-9 flex flex-col gap-2 border-t border-[#CBD5E1]/20 pt-[1.125rem] text-[0.8125rem] sm:flex-row sm:justify-between">
           <p>
             © {new Date().getFullYear()} {strings.common.siteName}. {strings.footer.copyright}
           </p>
-          <div className="flex items-center gap-4">
-            <Link href="/privacy" className="transition-colors hover:text-ivory">
-              {strings.footer.privacy}
+          <p>
+            <Link href="/privacy" className="hover:text-white">
+              {strings.site.privacyPolicy}
             </Link>
-            <span aria-hidden="true" className="size-1 rounded-full bg-gold/60" />
-            <Link href="/terms" className="transition-colors hover:text-ivory">
-              {strings.footer.terms}
+            {" · "}
+            <Link href="/terms" className="hover:text-white">
+              {strings.site.termsAndConditions}
             </Link>
-          </div>
+          </p>
         </div>
       </div>
     </footer>

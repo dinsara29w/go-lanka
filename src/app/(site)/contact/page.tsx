@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Mail, MessageCircle, Phone } from "lucide-react";
 
 import { ContactForm } from "@/components/contact/contact-form";
+import { PageBanner } from "@/components/site/section";
+import { siteImages } from "@/content/site-images";
 import { strings } from "@/content/strings";
 import { getSiteSettings } from "@/server/repositories/site-settings";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -25,93 +26,89 @@ export default async function ContactPage() {
   const hasDirectDetails =
     Boolean(settings?.contactEmail) || Boolean(settings?.phone) || Boolean(whatsappHref);
 
+  const rows = [
+    settings?.contactEmail
+      ? {
+          icon: Mail,
+          label: strings.contact.directEmail,
+          value: settings.contactEmail,
+          href: `mailto:${settings.contactEmail}`,
+          external: false,
+        }
+      : null,
+    whatsappHref
+      ? {
+          icon: MessageCircle,
+          label: strings.contact.directWhatsApp,
+          value: settings?.whatsappNumber ?? strings.whatsapp.label,
+          href: whatsappHref,
+          external: true,
+        }
+      : null,
+    settings?.phone
+      ? {
+          icon: Phone,
+          label: strings.contact.directPhone,
+          value: settings.phone,
+          href: `tel:${settings.phone.replace(/[^\d+]/g, "")}`,
+          external: false,
+        }
+      : null,
+  ].filter((row) => row !== null);
+
   return (
-    <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-      <div className="max-w-2xl space-y-4">
-        <p className="text-sm font-medium text-muted-foreground">{strings.nav.contact}</p>
-        <h1 className="font-heading text-4xl font-semibold tracking-tight sm:text-5xl">
-          {strings.contact.heading}
-        </h1>
-        <p className="text-base leading-7 text-muted-foreground">{strings.contact.intro}</p>
-      </div>
+    <>
+      <PageBanner
+        title={strings.contact.heading}
+        intro={strings.contact.intro}
+        image={siteImages.mirissa}
+        crumbs={[{ label: strings.nav.contact }]}
+      />
 
-      <div className="mt-10 grid gap-8 lg:grid-cols-[1.4fr_0.8fr] lg:items-start">
-        <div className="rounded-2xl border border-border bg-card p-5 sm:p-8">
+      <div className="mx-auto grid max-w-[60rem] gap-7 px-4 pt-10 pb-20 sm:px-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:items-start lg:px-0">
+        <section className="rounded-[1.125rem] border border-line bg-white p-6 shadow-panel sm:p-8">
+          <h2 className="mb-5 font-heading text-[1.625rem] font-bold text-ink">
+            {strings.contact.formHeading}
+          </h2>
           <ContactForm siteKey={siteKey} />
-        </div>
+        </section>
 
-        <aside className="space-y-5 rounded-2xl border border-border bg-muted/30 p-5 sm:p-6">
-          <div>
-            <h2 className="font-heading text-lg font-semibold">{strings.contact.directHeading}</h2>
-            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+        <aside className="rounded-[1.125rem] border border-line bg-white p-6 shadow-panel sm:p-8">
+          <h2 className="font-heading text-[1.375rem] font-bold text-ink">
+            {strings.contact.directHeading}
+          </h2>
+          {!hasDirectDetails ? (
+            <p className="mt-4 text-sm leading-6 text-stone">
               {strings.contact.detailsPlaceholder}
             </p>
-          </div>
-
-          {!hasDirectDetails ? (
-            <p className="rounded-lg border border-dashed border-border bg-background p-4 text-sm leading-6 text-muted-foreground">
-              {strings.placeholders.contact}
-            </p>
           ) : (
-            <div className="space-y-3 text-sm">
-              {settings?.contactEmail ? (
-                <a
-                  href={`mailto:${settings.contactEmail}`}
-                  className="flex items-center gap-3 rounded-lg border border-border bg-background px-3 py-3 hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                >
-                  <Mail aria-hidden="true" className="size-4 text-muted-foreground" />
-                  <span>
-                    <span className="block text-xs text-muted-foreground">
-                      {strings.contact.directEmail}
-                    </span>
-                    {settings.contactEmail}
-                  </span>
-                </a>
-              ) : null}
-
-              {settings?.phone ? (
-                <a
-                  href={`tel:${settings.phone.replace(/[^\d+]/g, "")}`}
-                  className="flex items-center gap-3 rounded-lg border border-border bg-background px-3 py-3 hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                >
-                  <Phone aria-hidden="true" className="size-4 text-muted-foreground" />
-                  <span>
-                    <span className="block text-xs text-muted-foreground">
-                      {strings.contact.directPhone}
-                    </span>
-                    {settings.phone}
-                  </span>
-                </a>
-              ) : null}
-
-              {whatsappHref ? (
-                <a
-                  href={whatsappHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 rounded-lg border border-border bg-background px-3 py-3 hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                >
-                  <MessageCircle aria-hidden="true" className="size-4 text-muted-foreground" />
-                  <span>
-                    <span className="block text-xs text-muted-foreground">
-                      {strings.contact.directWhatsApp}
-                    </span>
-                    {strings.whatsapp.label}
-                  </span>
-                </a>
-              ) : null}
-            </div>
+            <ul className="mt-5 space-y-5">
+              {rows.map((row) => {
+                const Icon = row.icon;
+                return (
+                  <li key={row.label}>
+                    <a
+                      href={row.href}
+                      {...(row.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                      className="group flex items-center gap-4"
+                    >
+                      <span className="flex size-[3.25rem] shrink-0 items-center justify-center rounded-xl bg-tint text-brand">
+                        <Icon aria-hidden="true" className="size-5" strokeWidth={1.9} />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-[0.8125rem] text-stone">{row.label}</span>
+                        <span className="block font-heading text-[1.0625rem] font-bold break-all text-ink group-hover:text-brand">
+                          {row.value}
+                        </span>
+                      </span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
           )}
-
-          <p className="text-xs leading-5 text-muted-foreground">
-            {strings.contact.privacyNote}{" "}
-            <Link href="/privacy" className="underline underline-offset-2 hover:text-foreground">
-              {strings.footer.privacy}
-            </Link>
-            .
-          </p>
         </aside>
       </div>
-    </div>
+    </>
   );
 }

@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
-import { ReviewAggregateSummary, ReviewCard } from "@/components/reviews/review-card";
+import { QuoteCard } from "@/components/site/blocks";
+import { CtaBox, PageBanner, RatingDots } from "@/components/site/section";
+import { siteImages } from "@/content/site-images";
 import { strings } from "@/content/strings";
-import { listPublishedReviews } from "@/server/repositories/reviews";
+import { getSiteReviewAggregate, listPublishedReviews } from "@/server/repositories/reviews";
 
 export const dynamic = "force-dynamic";
 
@@ -13,38 +16,67 @@ export const metadata: Metadata = {
 };
 
 export default async function ReviewsPage() {
-  const reviews = await listPublishedReviews(100);
-  const average =
-    reviews.length > 0
-      ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
-      : 0;
+  const [reviews, aggregate] = await Promise.all([
+    listPublishedReviews(100),
+    getSiteReviewAggregate(),
+  ]);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-      <div className="max-w-2xl space-y-4">
-        <p className="text-sm font-medium text-muted-foreground">{strings.nav.reviews}</p>
-        <h1 className="font-heading text-4xl font-semibold tracking-tight sm:text-5xl">
-          {strings.reviews.heading}
-        </h1>
-        <p className="text-base leading-7 text-muted-foreground">{strings.reviews.intro}</p>
-      </div>
+    <>
+      <PageBanner
+        title={strings.reviews.heading}
+        intro={strings.reviews.intro}
+        image={siteImages.tea}
+        crumbs={[{ label: strings.nav.reviews }]}
+      />
 
-      {reviews.length === 0 ? (
-        <p className="mt-10 rounded-2xl border border-dashed border-border bg-muted/30 p-8 text-sm text-muted-foreground">
-          {strings.reviews.empty}
-        </p>
-      ) : (
-        <>
-          <div className="mt-8">
-            <ReviewAggregateSummary count={reviews.length} average={average} />
+      <div className="mx-auto grid max-w-[60rem] gap-8 px-4 pt-10 sm:px-6 lg:grid-cols-[18.75rem_minmax(0,1fr)] lg:px-0">
+        <aside className="lg:sticky lg:top-24 lg:self-start">
+          <div className="flex flex-col items-center gap-2.5 rounded-[1.125rem] border border-line bg-white px-7 py-8 text-center shadow-panel">
+            {aggregate.count > 0 ? (
+              <>
+                <p className="font-heading text-[3.5rem] leading-none font-extrabold text-ink">
+                  {aggregate.average.toFixed(1)}{" "}
+                  <span className="text-[0.9375rem] font-medium text-stone">/ 5</span>
+                </p>
+                <RatingDots />
+                <p className="text-sm text-stone">
+                  {strings.site.from} <b className="text-ink">{aggregate.count}</b>{" "}
+                  {strings.home.verifiedReviews}
+                </p>
+              </>
+            ) : (
+              <p className="text-sm leading-6 text-stone">{strings.reviews.empty}</p>
+            )}
+            <Link href="/contact" className="btn-pill mt-2 h-[2.875rem] px-6 text-sm">
+              {strings.reviews.writeToUs}
+            </Link>
           </div>
-          <div className="mt-8 grid gap-5 md:grid-cols-2">
+        </aside>
+
+        {reviews.length > 0 ? (
+          <div className="grid content-start gap-5 sm:grid-cols-2">
             {reviews.map((review) => (
-              <ReviewCard key={review.id} review={review} />
+              <QuoteCard
+                key={review.id}
+                rating={review.rating}
+                title={review.title}
+                body={review.body}
+                name={review.authorName}
+                country={review.country}
+                journey={{ title: review.packageTitle, slug: review.packageSlug }}
+              />
             ))}
           </div>
-        </>
-      )}
-    </div>
+        ) : null}
+      </div>
+
+      <CtaBox
+        title={strings.reviews.ctaHeading}
+        body={strings.reviews.ctaBody}
+        href="/contact"
+        label={strings.site.planTrip}
+      />
+    </>
   );
 }

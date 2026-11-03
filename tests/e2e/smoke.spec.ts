@@ -14,7 +14,7 @@ test("public shell loads with security headers", async ({ page, request }) => {
   expect(headers["set-cookie"]).toBeUndefined();
 
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Discover Sri Lanka");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Sri Lanka Journeys");
 });
 
 test("mobile shell has no horizontal overflow", async ({ page }) => {

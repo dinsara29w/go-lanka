@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { Heart, MessagesSquare, Route } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { CtaBox, PageBanner, SectionHeading } from "@/components/site/section";
+import { siteImages } from "@/content/site-images";
 import { strings } from "@/content/strings";
 
 export const metadata: Metadata = {
@@ -11,44 +13,98 @@ export const metadata: Metadata = {
   alternates: { canonical: "/about" },
 };
 
+const valueIcons = [Route, MessagesSquare, Heart];
+
 export default function AboutPage() {
   return (
-    <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-      <div className="max-w-3xl space-y-4">
-        <p className="text-sm font-medium text-muted-foreground">{strings.about.eyebrow}</p>
-        <h1 className="font-heading text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-          {strings.about.heading}
-        </h1>
-        <p className="text-base leading-7 text-muted-foreground">{strings.about.intro}</p>
-      </div>
+    <>
+      <PageBanner
+        title={strings.about.heading}
+        intro={strings.about.intro}
+        image={siteImages.pidurangala}
+        crumbs={[{ label: strings.nav.about }]}
+      />
 
-      <div className="mt-12 grid gap-6 md:grid-cols-2">
-        <section className="rounded-2xl border border-border bg-card p-6 sm:p-8">
-          <h2 className="font-heading text-xl font-semibold">{strings.about.storyTitle}</h2>
-          <p className="mt-3 text-sm leading-7 text-muted-foreground">{strings.about.storyBody}</p>
-          <p className="mt-6 rounded-lg border border-dashed border-border bg-muted/30 p-4 text-xs leading-5 text-muted-foreground">
-            {strings.about.storyTodo}
-          </p>
-        </section>
-
-        <section className="rounded-2xl border border-border bg-card p-6 sm:p-8">
-          <h2 className="font-heading text-xl font-semibold">{strings.about.howTitle}</h2>
-          <p className="mt-3 text-sm leading-7 text-muted-foreground">{strings.about.howBody}</p>
-        </section>
-      </div>
-
-      <section className="mt-10 flex flex-col gap-4 rounded-2xl border border-border bg-muted/30 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+      <section className="mx-auto grid max-w-[60rem] items-center gap-10 px-4 pt-14 sm:px-6 md:grid-cols-2 lg:px-0">
         <div>
-          <h2 className="font-heading text-xl font-semibold">{strings.about.ctaTitle}</h2>
-          <p className="mt-1 text-sm leading-6 text-muted-foreground">{strings.about.ctaBody}</p>
-        </div>
-        <Button asChild>
-          <Link href="/contact">
+          <h2 className="font-heading text-[2rem] font-extrabold tracking-[-0.02em] text-ink">
+            {strings.about.storyTitle}
+          </h2>
+          <p className="mt-4 text-[0.9375rem] leading-relaxed text-stone">
+            {strings.about.storyBody}
+          </p>
+          <Link href="/contact" className="btn-pill mt-6">
             {strings.about.cta}
-            <ArrowRight aria-hidden="true" />
           </Link>
-        </Button>
+        </div>
+        <div className="relative h-72 overflow-hidden rounded-[1.125rem] shadow-lift sm:h-[21rem]">
+          <Image
+            src={siteImages.kandy.src}
+            alt={siteImages.kandy.alt}
+            fill
+            sizes="(min-width: 768px) 460px, 100vw"
+            className="object-cover"
+          />
+        </div>
       </section>
-    </div>
+
+      <section className="px-4 pt-[4.5rem] sm:px-6">
+        <SectionHeading
+          eyebrow={strings.about.valuesEyebrow}
+          title={strings.about.valuesHeading}
+          accent={strings.about.valuesAccent}
+        />
+        <div className="mx-auto mt-8 grid max-w-[60rem] gap-5 md:grid-cols-3">
+          {strings.home.highlights.map((item, index) => {
+            const Icon = valueIcons[index] ?? Route;
+            return (
+              <div
+                key={item.title}
+                className="rounded-2xl border border-line bg-white p-6 shadow-card"
+              >
+                <span className="flex size-[3.25rem] items-center justify-center rounded-xl bg-tint text-brand">
+                  <Icon aria-hidden="true" className="size-5" strokeWidth={1.9} />
+                </span>
+                <h3 className="mt-5 font-heading text-[1.0625rem] font-bold text-ink">
+                  {item.title}
+                </h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-stone">{item.description}</p>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="px-4 pt-[4.5rem] sm:px-6">
+        <SectionHeading
+          eyebrow={strings.about.processEyebrow}
+          title={strings.about.processHeading}
+          accent={strings.about.processAccent}
+        />
+        <ol className="mx-auto mt-8 grid max-w-[60rem] gap-5 md:grid-cols-3">
+          {strings.about.steps.map((step, index) => (
+            <li
+              key={step.title}
+              className="rounded-2xl border border-line bg-white p-6 shadow-card"
+            >
+              <span className="flex size-9 items-center justify-center rounded-full bg-[linear-gradient(180deg,#22A867,#0F7B4A)] text-sm font-bold text-white shadow-[0_3px_0_#06432A]">
+                {index + 1}
+              </span>
+              <h3 className="mt-4 font-heading text-[1.0625rem] font-bold text-ink">
+                {step.title}
+              </h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-stone">{step.description}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <CtaBox
+        title={strings.about.ctaTitle}
+        body={strings.about.ctaBody}
+        href="/contact"
+        label={strings.site.planTrip}
+      />
+    </>
   );
 }

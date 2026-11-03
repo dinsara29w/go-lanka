@@ -2,9 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { cn } from "cn";
+
+import { AutoSubmitSelect } from "@/components/packages/auto-submit-select";
 import { PackageGrid } from "@/components/packages/package-card";
+import { CtaBox, PageBanner } from "@/components/site/section";
 import { JsonLd } from "@/components/seo/json-ld";
-import { Button } from "@/components/ui/button";
+import { siteImages } from "@/content/site-images";
 import { strings } from "@/content/strings";
 import { getSiteUrl } from "@/lib/site";
 import {
@@ -28,8 +32,15 @@ const durationOptions = [
   { value: "15-plus", label: strings.packages.duration15plus },
 ];
 
-const selectClass =
-  "mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30";
+const selectClass = "field h-10 w-auto min-w-[9.5rem] text-sm";
+
+function packagesHref(filters: PackageFilters, change: Partial<PackageFilters>): string {
+  const next = { ...filters, ...change };
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(next)) if (value) params.set(key, value);
+  const query = params.toString();
+  return query ? `/packages?${query}` : "/packages";
+}
 
 export default async function PackagesPage({
   searchParams,
@@ -45,18 +56,26 @@ export default async function PackagesPage({
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-      <div className="max-w-2xl space-y-4">
-        <p className="text-sm font-medium text-muted-foreground">{strings.nav.packages}</p>
-        <h1 className="font-heading text-4xl font-semibold tracking-tight sm:text-5xl">
-          {strings.packages.heading}
-        </h1>
-        <p className="text-base leading-7 text-muted-foreground">{strings.packages.intro}</p>
+    <>
+      <PageBanner
+        title={strings.packages.heading}
+        intro={strings.packages.intro}
+        image={siteImages.hills}
+        crumbs={[{ label: strings.nav.packages }]}
+      />
+
+      <div className="mx-auto max-w-[60rem] px-4 pt-10 sm:px-6 lg:px-0">
+        <Suspense fallback={<CatalogueLoading />}>
+          <PackageCatalogue filters={filters} />
+        </Suspense>
       </div>
 
-      <Suspense fallback={<CatalogueLoading />}>
-        <PackageCatalogue filters={filters} />
-      </Suspense>
+      <CtaBox
+        title={strings.packages.ctaHeading}
+        body={strings.packages.ctaBody}
+        href="/tour-builder"
+        label={strings.packages.ctaButton}
+      />
 
       <JsonLd
         data={{
@@ -78,21 +97,18 @@ export default async function PackagesPage({
           ],
         }}
       />
-    </div>
+    </>
   );
 }
 
 function CatalogueLoading() {
   return (
-    <div className="mt-10" aria-busy="true" aria-live="polite">
+    <div aria-busy="true" aria-live="polite">
       <span className="sr-only">{strings.common.loading}</span>
-      <div className="h-40 animate-pulse rounded-2xl border border-border bg-muted/50" />
-      <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      <div className="h-10 w-2/3 animate-pulse rounded-full bg-band" />
+      <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 3 }).map((_, index) => (
-          <div
-            key={index}
-            className="h-80 animate-pulse rounded-2xl border border-border bg-muted/50"
-          />
+          <div key={index} className="h-80 animate-pulse rounded-[1.125rem] bg-band" />
         ))}
       </div>
     </div>
@@ -105,23 +121,47 @@ async function PackageCatalogue({ filters }: { filters: PackageFilters }) {
     getPackageFilterOptions(),
   ]);
 
-  const hasFilters = Boolean(filters.destination || filters.activity || filters.duration);
+  const chipClass = (active: boolean) =>
+    cn(
+      "inline-flex h-10 items-center rounded-full px-4 text-sm font-semibold transition-colors",
+      active
+        ? "bg-brand text-white"
+        : "border border-line bg-white text-ink hover:border-brand hover:text-brand",
+    );
 
   return (
     <>
-      <form
-        method="get"
-        action="/packages"
-        className="mt-10 rounded-2xl border border-border bg-card p-4 sm:p-5"
-      >
-        <p className="font-heading text-sm font-semibold">{strings.packages.filtersHeading}</p>
-        <div className="mt-4 grid gap-4 sm:grid-cols-3">
-          <div>
-            <label htmlFor="filter-destination" className="text-xs font-medium">
-              {strings.packages.destinationFilter}
-            </label>
-            <select
-              id="filter-destination"
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <nav aria-label={strings.packages.activityFilter} className="flex flex-wrap gap-2.5">
+          <Link
+            href={packagesHref(filters, { activity: undefined })}
+            aria-current={!filters.activity ? "page" : undefined}
+            className={chipClass(!filters.activity)}
+          >
+            {strings.packages.allJourneys}
+          </Link>
+          {options.activities.map((activity) => (
+            <Link
+              key={activity}
+              href={packagesHref(filters, { activity })}
+              aria-current={filters.activity === activity ? "page" : undefined}
+              className={chipClass(filters.activity === activity)}
+            >
+              {activity}
+            </Link>
+          ))}
+        </nav>
+
+        <form method="get" action="/packages" className="flex flex-wrap items-center gap-2.5">
+          {filters.activity ? (
+            <input type="hidden" name="activity" value={filters.activity} />
+          ) : null}
+          <span className="text-sm text-stone" aria-live="polite">
+            {packages.length} {packages.length === 1 ? strings.site.journey : strings.site.journeys}
+          </span>
+          <label>
+            <span className="sr-only">{strings.packages.destinationFilter}</span>
+            <AutoSubmitSelect
               name="destination"
               defaultValue={filters.destination ?? ""}
               className={selectClass}
@@ -132,34 +172,11 @@ async function PackageCatalogue({ filters }: { filters: PackageFilters }) {
                   {destination.name}
                 </option>
               ))}
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="filter-activity" className="text-xs font-medium">
-              {strings.packages.activityFilter}
-            </label>
-            <select
-              id="filter-activity"
-              name="activity"
-              defaultValue={filters.activity ?? ""}
-              className={selectClass}
-            >
-              <option value="">{strings.packages.allActivities}</option>
-              {options.activities.map((activity) => (
-                <option key={activity} value={activity}>
-                  {activity}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="filter-duration" className="text-xs font-medium">
-              {strings.packages.durationFilter}
-            </label>
-            <select
-              id="filter-duration"
+            </AutoSubmitSelect>
+          </label>
+          <label>
+            <span className="sr-only">{strings.packages.durationFilter}</span>
+            <AutoSubmitSelect
               name="duration"
               defaultValue={filters.duration ?? ""}
               className={selectClass}
@@ -170,19 +187,15 @@ async function PackageCatalogue({ filters }: { filters: PackageFilters }) {
                   {option.label}
                 </option>
               ))}
-            </select>
-          </div>
-        </div>
-
-        <div className="mt-4 flex flex-wrap gap-3">
-          <Button type="submit">{strings.packages.applyFilters}</Button>
-          {hasFilters ? (
-            <Button asChild variant="outline">
-              <Link href="/packages">{strings.packages.clearFilters}</Link>
-            </Button>
-          ) : null}
-        </div>
-      </form>
+            </AutoSubmitSelect>
+          </label>
+          <noscript>
+            <button type="submit" className="btn-outline-pill h-10 px-4 text-sm">
+              {strings.packages.applyFilters}
+            </button>
+          </noscript>
+        </form>
+      </div>
 
       <div className="mt-8">
         <PackageGrid packages={packages} />

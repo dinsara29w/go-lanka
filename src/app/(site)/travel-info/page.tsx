@@ -1,6 +1,20 @@
 import type { Metadata } from "next";
 
+import {
+  Backpack,
+  Banknote,
+  CalendarDays,
+  Car,
+  FileText,
+  HeartPulse,
+  Info,
+  type LucideIcon,
+} from "lucide-react";
+
+import { FaqList } from "@/components/site/blocks";
+import { CtaBox, PageBanner, SectionHeading } from "@/components/site/section";
 import { JsonLd } from "@/components/seo/json-ld";
+import { siteImages } from "@/content/site-images";
 import { strings } from "@/content/strings";
 import { listPublishedTravelInfo } from "@/server/repositories/travel-info";
 
@@ -22,89 +36,82 @@ export default async function TravelInfoPage() {
   const faqs = sections.flatMap((section) => section.faqs);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-      <div className="max-w-2xl space-y-4">
-        <p className="text-sm font-medium text-muted-foreground">{strings.nav.travelInfo}</p>
-        <h1 className="font-heading text-4xl font-semibold tracking-tight sm:text-5xl">
-          {strings.travelInfo.heading}
-        </h1>
-        <p className="text-base leading-7 text-muted-foreground">{strings.travelInfo.intro}</p>
+    <>
+      <PageBanner
+        title={strings.travelInfo.heading}
+        intro={strings.travelInfo.intro}
+        image={siteImages.hills}
+        crumbs={[{ label: strings.nav.travelInfo }]}
+      />
+
+      <div className="mx-auto max-w-[60rem] px-4 pt-10 sm:px-6 lg:px-0">
+        {sections.length === 0 ? (
+          <p className="rounded-2xl border border-dashed border-line bg-white p-8 text-center text-sm text-stone">
+            {strings.travelInfo.empty}
+          </p>
+        ) : (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {sections.map((section) => {
+              const Icon = sectionIcon(section.slug);
+              return (
+                <section
+                  key={section.id}
+                  id={section.slug}
+                  className="scroll-mt-24 rounded-[1.125rem] border border-line bg-white p-6 shadow-card"
+                >
+                  <span className="flex size-[3.25rem] items-center justify-center rounded-xl bg-tint text-brand">
+                    <Icon aria-hidden="true" className="size-5" strokeWidth={1.9} />
+                  </span>
+                  <h2 className="mt-5 font-heading text-[1.1875rem] font-bold text-ink">
+                    {section.title}
+                  </h2>
+                  {section.summary ? (
+                    <p className="mt-1.5 text-sm font-medium text-ink-soft">{section.summary}</p>
+                  ) : null}
+                  {section.body ? (
+                    <p className="mt-2 text-sm leading-relaxed whitespace-pre-wrap text-stone">
+                      {section.body}
+                    </p>
+                  ) : null}
+                  {section.bullets.length > 0 ? (
+                    <ul className="mt-3 space-y-1.5 text-sm text-stone">
+                      {section.bullets.map((bullet) => (
+                        <li key={bullet} className="flex gap-2">
+                          <span aria-hidden="true" className="text-brand">
+                            •
+                          </span>
+                          {bullet}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                  <p className="mt-4 text-xs text-stone/80">
+                    {strings.travelInfo.lastUpdated}: {dateFormatter.format(section.updatedAt)}
+                  </p>
+                </section>
+              );
+            })}
+          </div>
+        )}
       </div>
 
-      {sections.length === 0 ? (
-        <p className="mt-10 rounded-2xl border border-dashed border-border bg-muted/30 p-8 text-sm text-muted-foreground">
-          {strings.travelInfo.empty}
-        </p>
-      ) : (
-        <div className="mt-10 grid gap-8 lg:grid-cols-[0.3fr_1fr] lg:items-start">
-          <nav aria-label="Travel information sections" className="hidden lg:block">
-            <ul className="sticky top-24 space-y-2 text-sm">
-              {sections.map((section) => (
-                <li key={section.id}>
-                  <a
-                    href={`#${section.slug}`}
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    {section.title}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
+      {faqs.length > 0 ? (
+        <section className="px-4 pt-[4.5rem] sm:px-6">
+          <SectionHeading
+            eyebrow={strings.home.faqEyebrow}
+            title={strings.home.faqHeading}
+            accent={strings.home.faqAccent}
+          />
+          <FaqList faqs={faqs} className="mt-8" />
+        </section>
+      ) : null}
 
-          <div className="space-y-10">
-            {sections.map((section) => (
-              <section
-                key={section.id}
-                id={section.slug}
-                className="scroll-mt-24 rounded-2xl border border-border bg-card p-5 sm:p-7"
-              >
-                <h2 className="font-heading text-2xl font-semibold tracking-tight">
-                  {section.title}
-                </h2>
-                {section.summary ? (
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{section.summary}</p>
-                ) : null}
-                <div className="mt-4 whitespace-pre-wrap text-sm leading-7 text-muted-foreground">
-                  {section.body}
-                </div>
-                {section.bullets.length > 0 ? (
-                  <ul className="mt-4 space-y-2 text-sm leading-6 text-muted-foreground">
-                    {section.bullets.map((bullet) => (
-                      <li key={bullet}>• {bullet}</li>
-                    ))}
-                  </ul>
-                ) : null}
-
-                {section.faqs.length > 0 ? (
-                  <div className="mt-6 space-y-3 border-t border-border pt-5">
-                    <h3 className="font-heading text-lg font-semibold">
-                      {strings.travelInfo.faqHeading}
-                    </h3>
-                    {section.faqs.map((faq) => (
-                      <details
-                        key={faq.question}
-                        className="rounded-lg border border-border bg-background p-4"
-                      >
-                        <summary className="cursor-pointer list-none font-medium [&::-webkit-details-marker]:hidden">
-                          {faq.question}
-                        </summary>
-                        <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
-                          {faq.answer}
-                        </p>
-                      </details>
-                    ))}
-                  </div>
-                ) : null}
-
-                <p className="mt-5 text-xs text-muted-foreground">
-                  {strings.travelInfo.lastUpdated}: {dateFormatter.format(section.updatedAt)}
-                </p>
-              </section>
-            ))}
-          </div>
-        </div>
-      )}
+      <CtaBox
+        title={strings.travelInfo.ctaHeading}
+        body={strings.travelInfo.ctaBody}
+        href="/contact"
+        label={strings.travelInfo.ctaButton}
+      />
 
       {faqs.length > 0 ? (
         <JsonLd
@@ -119,6 +126,16 @@ export default async function TravelInfoPage() {
           }}
         />
       ) : null}
-    </div>
+    </>
   );
+}
+
+function sectionIcon(slug: string): LucideIcon {
+  if (/time|season|weather|when/.test(slug)) return CalendarDays;
+  if (/visa|entry|passport/.test(slug)) return FileText;
+  if (/money|currency|cash|cost|tip/.test(slug)) return Banknote;
+  if (/transport|getting|travel-around|driver|train/.test(slug)) return Car;
+  if (/health|safety|insurance|vaccin/.test(slug)) return HeartPulse;
+  if (/pack|clothing|dress/.test(slug)) return Backpack;
+  return Info;
 }

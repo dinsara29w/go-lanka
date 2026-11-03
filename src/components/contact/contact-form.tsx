@@ -13,7 +13,7 @@ import { contactFormSchema, type ContactFormValues } from "@/lib/validation/cont
 type Status = "idle" | "sending" | "success" | "error";
 
 const inputClass =
-  "mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm shadow-xs outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30 aria-invalid:border-destructive aria-invalid:ring-destructive/20";
+  "field mt-1.5 placeholder:text-stone/70 aria-invalid:border-destructive aria-invalid:ring-destructive/20";
 
 export function ContactForm({ siteKey }: { siteKey: string | null }) {
   const [status, setStatus] = useState<Status>("idle");
@@ -116,7 +116,7 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
     <form onSubmit={onSubmit} noValidate className="space-y-5">
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
-          <label htmlFor="contact-name" className="text-sm font-medium">
+          <label htmlFor="contact-name" className="text-xs font-semibold text-brand">
             {strings.contact.name}
           </label>
           <input
@@ -135,7 +135,7 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
         </div>
 
         <div>
-          <label htmlFor="contact-email" className="text-sm font-medium">
+          <label htmlFor="contact-email" className="text-xs font-semibold text-brand">
             {strings.contact.email}
           </label>
           <input
@@ -156,7 +156,7 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
       </div>
 
       <div>
-        <label htmlFor="contact-phone" className="text-sm font-medium">
+        <label htmlFor="contact-phone" className="text-xs font-semibold text-brand">
           {strings.contact.phone}
         </label>
         <input
@@ -176,7 +176,7 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
       </div>
 
       <div>
-        <label htmlFor="contact-message" className="text-sm font-medium">
+        <label htmlFor="contact-message" className="text-xs font-semibold text-brand">
           {strings.contact.message}
         </label>
         <textarea
@@ -220,17 +220,21 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
         </div>
       ) : null}
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="max-w-md text-xs leading-5 text-muted-foreground">
+      <div className="flex flex-col gap-4 sm:flex-row-reverse sm:items-center sm:justify-end">
+        <p className="max-w-sm text-xs leading-5 text-stone">
           {strings.contact.privacyNote}{" "}
           <Link href="/privacy" className="underline underline-offset-2 hover:text-foreground">
             {strings.footer.privacy}
           </Link>
           .
         </p>
-        <Button type="submit" disabled={status === "sending" || !turnstileToken}>
+        <button
+          type="submit"
+          className="btn-pill"
+          disabled={status === "sending" || !turnstileToken}
+        >
           {status === "sending" ? strings.contact.sending : strings.contact.submit}
-        </Button>
+        </button>
       </div>
     </form>
   );
