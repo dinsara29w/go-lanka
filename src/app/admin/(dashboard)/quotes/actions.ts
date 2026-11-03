@@ -279,10 +279,7 @@ export async function approveQuoteAction(formData: FormData): Promise<void> {
     );
     pdfUrl = `${getSiteUrl()}/tour-builder/pdf/${token}`;
   } catch (error) {
-    getLogger().error(
-      { err: error, event: "quote_pdf_failed", quoteId: id },
-      "quote_pdf_failed",
-    );
+    getLogger().error({ err: error, event: "quote_pdf_failed", quoteId: id }, "quote_pdf_failed");
   }
 
   const env = getServerEnv();
@@ -344,10 +341,7 @@ export async function approveQuoteAction(formData: FormData): Promise<void> {
   });
 
   if (delivered.size === 0) {
-    getLogger().error(
-      { event: "quote_delivery_failed", quoteId: id },
-      "quote_delivery_failed",
-    );
+    getLogger().error({ event: "quote_delivery_failed", quoteId: id }, "quote_delivery_failed");
     redirect(`/admin/quotes/${id}?error=send`);
   }
 

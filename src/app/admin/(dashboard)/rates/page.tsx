@@ -83,9 +83,7 @@ export default async function AdminRatesPage({
       ) : null}
 
       <section className="max-w-3xl rounded-xl border border-border bg-card p-5 sm:p-6">
-        <h2 className="font-heading text-xl font-semibold">
-          {strings.admin.tourBuilderSettings}
-        </h2>
+        <h2 className="font-heading text-xl font-semibold">{strings.admin.tourBuilderSettings}</h2>
         <p className="mt-1 text-sm leading-6 text-muted-foreground">
           {strings.admin.tourBuilderSettingsIntro}
         </p>
