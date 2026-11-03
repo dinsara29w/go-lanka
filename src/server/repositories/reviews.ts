@@ -93,3 +93,18 @@ export async function getPackageReviewAggregate(packageId: string): Promise<Revi
     average: Number(row?.average ?? "0"),
   };
 }
+
+/** Rating summary across every published review (home and reviews pages). */
+export async function getSiteReviewAggregate(): Promise<ReviewAggregate> {
+  const result = await getPublicPool().query<{ count: string; average: string | null }>(
+    `SELECT count(*)::text AS count, avg(rating)::text AS average
+     FROM reviews r
+     JOIN packages p ON p.id = r.package_id
+     WHERE r.is_published = true AND p.is_published = true`,
+  );
+  const row = result.rows[0];
+  return {
+    count: Number(row?.count ?? "0"),
+    average: Number(row?.average ?? "0"),
+  };
+}

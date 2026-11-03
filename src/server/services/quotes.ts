@@ -18,12 +18,7 @@ import { sendWhatsApp } from "@/server/whatsapp/send";
 
 export class QuoteError extends Error {
   constructor(
-    readonly code:
-      | "rate_limited"
-      | "verification_failed"
-      | "unavailable"
-      | "invalid"
-      | "not_found",
+    readonly code: "rate_limited" | "verification_failed" | "unavailable" | "invalid" | "not_found",
     readonly status: number,
   ) {
     super(code);
@@ -129,10 +124,7 @@ async function notifyAdmin(input: {
   requestId: string;
 }): Promise<void> {
   const env = getServerEnv();
-  const [settings, rates] = await Promise.all([
-    getSiteSettings(),
-    getTourBuilderRates(),
-  ]);
+  const [settings, rates] = await Promise.all([getSiteSettings(), getTourBuilderRates()]);
   const adminUrl = new URL(`/admin/quotes/${input.quoteId}`, getSiteUrl()).toString();
   const adminWhatsApp = rates.adminWhatsAppNumber ?? settings?.whatsappNumber ?? null;
   const adminEmailCandidate = env.ADMIN_NOTIFICATION_EMAIL ?? settings?.contactEmail ?? null;

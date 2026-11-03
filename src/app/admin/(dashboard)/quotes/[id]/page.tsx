@@ -121,12 +121,13 @@ export default async function AdminQuotePage({
     <div className="space-y-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-2">
-          <Link href="/admin/quotes" className="text-sm text-muted-foreground hover:text-foreground">
+          <Link
+            href="/admin/quotes"
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
             ← {strings.admin.quotes}
           </Link>
-          <h1 className="font-heading text-3xl font-semibold tracking-tight">
-            {quote.reference}
-          </h1>
+          <h1 className="font-heading text-3xl font-semibold tracking-tight">{quote.reference}</h1>
           <p className="text-sm text-muted-foreground">
             {statusLabels[quote.status]} · {formatDate(quote.created_at)}
           </p>
@@ -157,9 +158,7 @@ export default async function AdminQuotePage({
           role="alert"
           className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
         >
-          {search.error === "send"
-            ? strings.admin.quoteSendFailed
-            : strings.admin.quoteSendFailed}
+          {search.error === "send" ? strings.admin.quoteSendFailed : strings.admin.quoteSendFailed}
         </div>
       ) : null}
 
@@ -198,12 +197,15 @@ export default async function AdminQuotePage({
           <section className="rounded-xl border border-border bg-card p-5">
             <h2 className="font-heading text-xl font-semibold">{strings.admin.quoteItinerary}</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              {quote.days} days · {quote.nights} nights · {quote.adults} adults,{" "}
-              {quote.children} children
+              {quote.days} days · {quote.nights} nights · {quote.adults} adults, {quote.children}{" "}
+              children
             </p>
             <div className="mt-4 space-y-3">
               {itinerary.days?.map((day) => (
-                <article key={day.day} className="rounded-lg border border-border bg-background p-4">
+                <article
+                  key={day.day}
+                  className="rounded-lg border border-border bg-background p-4"
+                >
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <p className="text-xs font-semibold uppercase tracking-wide text-accent-foreground">
                       {strings.admin.itineraryDays} {day.day}
@@ -215,9 +217,7 @@ export default async function AdminQuotePage({
                   </div>
                   <h3 className="mt-1 font-medium">{day.title}</h3>
                   <p className="mt-1 text-sm leading-6 text-muted-foreground">{day.notes}</p>
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    Overnight: {day.overnight}
-                  </p>
+                  <p className="mt-2 text-xs text-muted-foreground">Overnight: {day.overnight}</p>
                 </article>
               ))}
             </div>
@@ -368,9 +368,7 @@ export default async function AdminQuotePage({
                   defaultValue={quote.final_total_lkr ? Number(quote.final_total_lkr) : ""}
                   className={inputClass}
                 />
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {strings.admin.finalTotalHint}
-                </p>
+                <p className="mt-1 text-xs text-muted-foreground">{strings.admin.finalTotalHint}</p>
               </div>
 
               <div>
@@ -391,9 +389,7 @@ export default async function AdminQuotePage({
           </section>
 
           <section className="rounded-xl border border-border bg-card p-5">
-            <h2 className="font-heading text-xl font-semibold">
-              {strings.admin.approveAndSend}
-            </h2>
+            <h2 className="font-heading text-xl font-semibold">{strings.admin.approveAndSend}</h2>
             <p className="mt-1 text-sm leading-6 text-muted-foreground">
               {strings.admin.quoteApprovedFootnote}
             </p>
@@ -401,12 +397,7 @@ export default async function AdminQuotePage({
               <input type="hidden" name="_csrf" value={session.csrfToken} />
               <input type="hidden" name="id" value={quote.id} />
               <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  name="sendEmail"
-                  defaultChecked
-                  disabled={!quote.email}
-                />
+                <input type="checkbox" name="sendEmail" defaultChecked disabled={!quote.email} />
                 {strings.admin.sendEmail}
                 {quote.email ? ` (${quote.email})` : ""}
               </label>

@@ -5,28 +5,44 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Coastal editorial design system.
- * Ivory paper, Indian Ocean teal, turmeric gold, laterite coral.
- * Display: Fraunces · Body: Manrope (loaded in app/layout.tsx).
+ * Sri Lanka Tours design system (handoff/DESIGN.md).
+ * Green theme, white cards, 3D pill buttons.
+ * Headings: Plus Jakarta Sans · Body: DM Sans (loaded in app/layout.tsx).
  */
 @theme inline {
-  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
-  --font-heading: var(--font-fraunces), "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-sans:
+    var(--font-dm-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  --font-heading: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
 
   /* Brand palette */
-  --color-ivory: #faf6ee;
-  --color-sand: #f2ead9;
-  --color-clay: #e6d5bd;
-  --color-ocean: #0e4f4a;
-  --color-ocean-deep: #0a3b37;
-  --color-lagoon: #2f7d74;
-  --color-gold: #c9962b;
-  --color-gold-light: #e3b75c;
-  --color-ochre: #7d5a10;
+  --color-brand: #0f7b4a;
+  --color-brand-top: #22a867;
+  --color-brand-edge: #06432a;
+  --color-brand-dark: #0a5a36;
+  --color-ink: #10211a;
+  --color-ink-soft: #475a50;
+  --color-stone: #5b6b63;
+  --color-line: #dde7e1;
+  --color-field: #cbd5e1;
+  --color-tint: #e7f4ec;
+  --color-page: #f6faf7;
+  --color-band: #edf5f0;
+  --color-amber: #f2b84b;
+  --color-star: #b7791f;
+  --color-footer: #0e2a20;
+
+  /* Legacy names kept so admin and shared components follow the new theme */
+  --color-ivory: #f6faf7;
+  --color-sand: #edf5f0;
+  --color-clay: #dde7e1;
+  --color-ocean: #0f7b4a;
+  --color-ocean-deep: #0a5a36;
+  --color-lagoon: #22a867;
+  --color-gold: #f2b84b;
+  --color-gold-light: #f6cd78;
+  --color-ochre: #0f7b4a;
   --color-coral: #e2725b;
-  --color-ink: #1b2a27;
-  --color-stone: #5f6f6a;
 
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -68,9 +84,22 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 
-  --shadow-soft: 0 18px 50px -30px rgb(14 79 74 / 0.35);
-  --shadow-lift: 0 32px 70px -34px rgb(14 79 74 / 0.45);
-  --shadow-gold: 0 22px 50px -30px rgb(201 150 43 / 0.6);
+  --shadow-soft: 0 4px 22px rgb(16 33 26 / 0.08);
+  --shadow-lift: 0 6px 28px rgb(16 33 26 / 0.12);
+  --shadow-gold: 0 6px 24px rgb(242 184 75 / 0.3);
+  --shadow-card: 0 4px 22px rgb(16 33 26 / 0.08);
+  --shadow-panel: 0 6px 28px rgb(16 33 26 / 0.07);
+
+  --animate-slide-progress: slide-progress 6s linear forwards;
+
+  @keyframes slide-progress {
+    from {
+      width: 0%;
+    }
+    to {
+      width: 100%;
+    }
+  }
 
   --animate-rise: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 
@@ -87,38 +116,38 @@
 }
 
 :root {
-  --background: #faf6ee;
-  --foreground: #1b2a27;
-  --card: #fffdf8;
-  --card-foreground: #1b2a27;
-  --popover: #fffdf8;
-  --popover-foreground: #1b2a27;
-  --primary: #0e4f4a;
-  --primary-foreground: #faf6ee;
-  --secondary: #f2ead9;
-  --secondary-foreground: #1b2a27;
-  --muted: #f2ead9;
-  --muted-foreground: #5f6f6a;
-  --accent: #e9dcc4;
-  --accent-foreground: #1b2a27;
+  --background: #f6faf7;
+  --foreground: #10211a;
+  --card: #ffffff;
+  --card-foreground: #10211a;
+  --popover: #ffffff;
+  --popover-foreground: #10211a;
+  --primary: #0f7b4a;
+  --primary-foreground: #ffffff;
+  --secondary: #e7f4ec;
+  --secondary-foreground: #10211a;
+  --muted: #edf5f0;
+  --muted-foreground: #5b6b63;
+  --accent: #e7f4ec;
+  --accent-foreground: #10211a;
   --destructive: #b23d2a;
-  --border: #e4d9c6;
-  --input: #ddd0ba;
-  --ring: #0e4f4a;
-  --chart-1: #0e4f4a;
-  --chart-2: #c9962b;
+  --border: #dde7e1;
+  --input: #cbd5e1;
+  --ring: #0f7b4a;
+  --chart-1: #0f7b4a;
+  --chart-2: #f2b84b;
   --chart-3: #e2725b;
-  --chart-4: #2f7d74;
-  --chart-5: #8a6414;
+  --chart-4: #22a867;
+  --chart-5: #8aa624;
   --radius: 0.875rem;
-  --sidebar: #f4eee1;
-  --sidebar-foreground: #1b2a27;
-  --sidebar-primary: #0e4f4a;
-  --sidebar-primary-foreground: #faf6ee;
-  --sidebar-accent: #e9dcc4;
-  --sidebar-accent-foreground: #1b2a27;
-  --sidebar-border: #e0d4c0;
-  --sidebar-ring: #0e4f4a;
+  --sidebar: #edf5f0;
+  --sidebar-foreground: #10211a;
+  --sidebar-primary: #0f7b4a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e7f4ec;
+  --sidebar-accent-foreground: #10211a;
+  --sidebar-border: #dde7e1;
+  --sidebar-ring: #0f7b4a;
 }
 
 .dark {
@@ -170,26 +199,126 @@
     @apply text-foreground;
   }
 
-  /*
-   * The page wash lives on a fixed pseudo-element instead of a
-   * `background-attachment: fixed` on <body>. A fixed element is composited
-   * once; a fixed attachment repaints a viewport-sized gradient on every
-   * scroll frame, which is what makes long pages feel heavy.
-   */
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background-image:
-      radial-gradient(60rem 32rem at 12% -8%, rgb(201 150 43 / 0.08), transparent 60%),
-      radial-gradient(52rem 30rem at 96% 0%, rgb(14 79 74 / 0.07), transparent 55%);
-  }
-
   ::selection {
-    background: rgb(201 150 43 / 0.32);
-    color: #1b2a27;
+    background: rgb(34 168 103 / 0.25);
+    color: #10211a;
+  }
+}
+
+@layer components {
+  /* 3D pill button (DESIGN.md: Pill button) */
+  .btn-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 3rem;
+    padding: 0 1.75rem;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--color-brand-top), var(--color-brand));
+    box-shadow:
+      0 4px 0 var(--color-brand-edge),
+      0 8px 16px rgb(15 123 74 / 0.25);
+    color: #fff;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition:
+      transform 0.12s ease,
+      box-shadow 0.12s ease,
+      filter 0.15s ease;
+  }
+  .btn-pill:hover {
+    filter: brightness(1.05);
+  }
+  .btn-pill:active {
+    transform: translateY(2px);
+    box-shadow:
+      0 2px 0 var(--color-brand-edge),
+      0 4px 10px rgb(15 123 74 / 0.25);
+  }
+  .btn-pill:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
+  }
+  .btn-pill-sm {
+    height: 2.375rem;
+    padding: 0 1.25rem;
+    font-size: 0.875rem;
+  }
+  /* White pill used inside the green CTA box */
+  .btn-pill-white {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 3rem;
+    padding: 0 1.875rem;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 4px 0 rgb(6 67 42 / 0.35);
+    color: var(--color-brand);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    transition: transform 0.12s ease;
+  }
+  .btn-pill-white:active {
+    transform: translateY(2px);
+  }
+  .btn-outline-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 2.875rem;
+    padding: 0 1.75rem;
+    border-radius: 999px;
+    border: 2px solid var(--color-brand);
+    color: var(--color-brand);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    transition: background-color 0.15s ease;
+  }
+  .btn-outline-pill:hover {
+    background: var(--color-tint);
+  }
+  .text-gradient {
+    background: linear-gradient(90deg, #0f7b4a, #8aa624);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .field {
+    height: 2.75rem;
+    width: 100%;
+    border-radius: 10px;
+    border: 1px solid var(--color-field);
+    background: #fff;
+    padding: 0 0.75rem;
+    font-size: 0.9375rem;
+    color: var(--color-ink);
+    outline: none;
+  }
+  textarea.field {
+    height: auto;
+    padding: 0.75rem;
+  }
+  .field:focus-visible {
+    border-color: var(--color-brand);
+    box-shadow: 0 0 0 3px rgb(15 123 74 / 0.18);
+  }
+  .field-label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3125rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-brand);
+  }
+  .zoom-img img {
+    transition: transform 0.5s ease;
+  }
+  .zoom-img:hover img {
+    transform: scale(1.05);
   }
 }
 

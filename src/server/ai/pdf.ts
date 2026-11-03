@@ -266,7 +266,10 @@ export async function generateItineraryPdf(input: {
       "Package",
       `${breakdown.package.title} — ${formatLkr(breakdown.package.adjustedDailyRateLkr)} per adult/day × ${breakdown.package.days} days × ${breakdown.package.travellerUnits} traveller units`,
     ],
-    ["Board adjustment", `${breakdown.package.boardPercent}% (${BOARD_LABELS[breakdown.package.board]})`],
+    [
+      "Board adjustment",
+      `${breakdown.package.boardPercent}% (${BOARD_LABELS[breakdown.package.board]})`,
+    ],
   ];
   if (breakdown.ride.vehicleName) {
     quoteLines.push([

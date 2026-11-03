@@ -11,6 +11,18 @@ const nextConfig: NextConfig = {
     // Uploaded media uses unique, immutable filenames, so optimized variants
     // can be reused for a day instead of being re-encoded on every visit.
     minimumCacheTTL: 86400,
+    // Banner photography is served from Wikimedia Commons (src/content/site-images.ts).
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "commons.wikimedia.org",
+        port: "",
+        pathname: "/wiki/Special:FilePath/**",
+        search: "?width=1600",
+      },
+    ],
+    // Special:FilePath answers with a redirect to upload.wikimedia.org.
+    maximumRedirects: 2,
   },
   experimental: {
     // Dynamic pages have no client cache by default, so every back-and-forth

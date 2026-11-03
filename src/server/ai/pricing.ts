@@ -100,15 +100,12 @@ export function computeQuote(input: {
 }): QuoteBreakdown {
   const notes: string[] = [];
   const boardPercent = boardPercentFor(input.board, input.rates);
-  const travellerUnits =
-    input.adults + (input.children * input.rates.childRatePercent) / 100;
+  const travellerUnits = input.adults + (input.children * input.rates.childRatePercent) / 100;
   const adjustedDailyRateLkr = Math.max(
     0,
     roundMoney(input.package.dailyRateLkr * (1 + boardPercent / 100)),
   );
-  const packageSubtotal = roundMoney(
-    adjustedDailyRateLkr * input.days * travellerUnits,
-  );
+  const packageSubtotal = roundMoney(adjustedDailyRateLkr * input.days * travellerUnits);
 
   const perKmRateLkr = input.vehicle?.perKmRateLkr ?? 0;
   const distanceLkr = roundMoney(perKmRateLkr * input.distanceKm);
@@ -128,9 +125,7 @@ export function computeQuote(input: {
     notes.push("Self-drive: vehicle supplied without a driver.");
   }
   if (input.children > 0) {
-    notes.push(
-      `Children are charged at ${input.rates.childRatePercent}% of the adult rate.`,
-    );
+    notes.push(`Children are charged at ${input.rates.childRatePercent}% of the adult rate.`);
   }
 
   return {

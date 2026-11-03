@@ -12,7 +12,7 @@ import { bookingFormSchema, type BookingFormValues } from "@/lib/validation/book
 import type { PublicAvailability } from "@/server/repositories/availability";
 
 const inputClass =
-  "mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm shadow-xs outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30 aria-invalid:border-destructive aria-invalid:ring-destructive/20";
+  "field mt-1.5 placeholder:text-stone/70 aria-invalid:border-destructive aria-invalid:ring-destructive/20";
 
 const monthFormatter = new Intl.DateTimeFormat("en", {
   month: "long",
@@ -184,10 +184,11 @@ export function BookingSection({
 
   if (availability.length === 0) {
     return (
-      <section className="rounded-2xl border border-dashed border-border bg-muted/30 p-6">
-        <h2 className="font-heading text-2xl font-semibold tracking-tight">
-          {strings.booking.heading}
-        </h2>
+      <section
+        id="booking"
+        className="scroll-mt-24 rounded-2xl border border-dashed border-line bg-white p-6"
+      >
+        <h2 className="font-heading text-2xl font-bold text-ink">{strings.booking.heading}</h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
           {strings.booking.noAvailability}
         </p>
@@ -199,16 +200,17 @@ export function BookingSection({
   }
 
   return (
-    <section id="booking" className="rounded-2xl border border-border bg-card p-5 sm:p-7">
+    <section
+      id="booking"
+      className="scroll-mt-24 rounded-2xl border border-line bg-white p-5 shadow-card sm:p-7"
+    >
       <div className="max-w-2xl space-y-2">
-        <h2 className="font-heading text-2xl font-semibold tracking-tight">
-          {strings.booking.heading}
-        </h2>
+        <h2 className="font-heading text-2xl font-bold text-ink">{strings.booking.heading}</h2>
         <p className="text-sm leading-6 text-muted-foreground">{strings.booking.intro}</p>
       </div>
 
       <div className="mt-6 grid gap-7 lg:grid-cols-[1fr_1.1fr]">
-        <div className="rounded-xl border border-border p-4">
+        <div className="rounded-xl border border-line bg-page p-4">
           <div className="flex items-center justify-between gap-2">
             <Button
               type="button"
@@ -260,9 +262,9 @@ export function BookingSection({
                   }}
                   className={`flex min-h-12 flex-col items-center justify-center rounded-md border text-xs transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${
                     selected
-                      ? "border-primary bg-primary text-primary-foreground"
+                      ? "border-brand bg-brand text-white"
                       : bookable
-                        ? "border-border bg-background hover:bg-muted"
+                        ? "border-line bg-white hover:border-brand hover:bg-tint"
                         : "cursor-not-allowed border-transparent text-muted-foreground/40"
                   }`}
                 >
@@ -312,7 +314,7 @@ export function BookingSection({
           />
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label htmlFor="booking-name" className="text-sm font-medium">
+              <label htmlFor="booking-name" className="text-xs font-semibold text-brand">
                 {strings.booking.name}
               </label>
               <input
@@ -330,7 +332,7 @@ export function BookingSection({
               ) : null}
             </div>
             <div>
-              <label htmlFor="booking-email" className="text-sm font-medium">
+              <label htmlFor="booking-email" className="text-xs font-semibold text-brand">
                 {strings.booking.email}
               </label>
               <input
@@ -349,7 +351,7 @@ export function BookingSection({
               ) : null}
             </div>
             <div>
-              <label htmlFor="booking-phone" className="text-sm font-medium">
+              <label htmlFor="booking-phone" className="text-xs font-semibold text-brand">
                 {strings.booking.phone}
               </label>
               <input
@@ -368,7 +370,7 @@ export function BookingSection({
               ) : null}
             </div>
             <div>
-              <label htmlFor="booking-country" className="text-sm font-medium">
+              <label htmlFor="booking-country" className="text-xs font-semibold text-brand">
                 {strings.booking.country}
               </label>
               <input
@@ -386,7 +388,7 @@ export function BookingSection({
               ) : null}
             </div>
             <div>
-              <label htmlFor="booking-adults" className="text-sm font-medium">
+              <label htmlFor="booking-adults" className="text-xs font-semibold text-brand">
                 {strings.booking.adults}
               </label>
               <input
@@ -406,7 +408,7 @@ export function BookingSection({
               ) : null}
             </div>
             <div>
-              <label htmlFor="booking-children" className="text-sm font-medium">
+              <label htmlFor="booking-children" className="text-xs font-semibold text-brand">
                 {strings.booking.children}
               </label>
               <input
@@ -428,7 +430,7 @@ export function BookingSection({
           </div>
 
           <div>
-            <label htmlFor="booking-message" className="text-sm font-medium">
+            <label htmlFor="booking-message" className="text-xs font-semibold text-brand">
               {strings.booking.message}
             </label>
             <textarea
@@ -471,9 +473,9 @@ export function BookingSection({
 
           <p className="text-xs leading-5 text-muted-foreground">{strings.booking.requestNote}</p>
 
-          <Button
+          <button
             type="submit"
-            className="w-full"
+            className="btn-pill w-full"
             disabled={
               submitting ||
               !turnstileToken ||
@@ -483,7 +485,7 @@ export function BookingSection({
             }
           >
             {submitting ? strings.booking.sending : strings.booking.submit}
-          </Button>
+          </button>
         </form>
       </div>
     </section>

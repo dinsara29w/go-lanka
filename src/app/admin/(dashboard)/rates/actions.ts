@@ -136,10 +136,7 @@ export async function saveVehicleAction(formData: FormData): Promise<void> {
       );
     }
   } catch (error) {
-    getLogger().error(
-      { err: error, event: "vehicle_save_failed" },
-      "vehicle_save_failed",
-    );
+    getLogger().error({ err: error, event: "vehicle_save_failed" }, "vehicle_save_failed");
     redirect("/admin/rates?error=vehicle");
   }
 

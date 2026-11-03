@@ -20,12 +20,12 @@ export function CurrencySwitcher() {
   }
 
   return (
-    <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+    <label className="flex items-center">
       <span className="sr-only">{strings.currency.label}</span>
       <select
         value={value}
         onChange={(event) => change(event.target.value as Currency)}
-        className="rounded-full border border-ink/15 bg-background/60 px-3 py-1.5 text-xs font-medium text-ink outline-none transition-colors hover:bg-sand focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30"
+        className="h-8 rounded-lg border border-line bg-[#EEF2F6] px-2 text-[0.8125rem] text-ink-soft outline-none focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-brand"
       >
         {CURRENCIES.map((item) => (
           <option key={item} value={item}>

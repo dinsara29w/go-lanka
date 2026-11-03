@@ -36,9 +36,7 @@ function bodyFor(message: WhatsAppMessage, to: string, templateLanguage: string)
       template: {
         name: message.templateName,
         language: { code: templateLanguage },
-        ...(parameters.length > 0
-          ? { components: [{ type: "body" as const, parameters }] }
-          : {}),
+        ...(parameters.length > 0 ? { components: [{ type: "body" as const, parameters }] } : {}),
       },
     };
   }

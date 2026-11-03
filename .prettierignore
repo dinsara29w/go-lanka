@@ -8,3 +8,4 @@ src/app/shadcn-tailwind.css
 db/migrations
 .env*
 !.env.example
+results.sarif

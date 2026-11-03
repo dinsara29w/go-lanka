@@ -3,11 +3,9 @@
 import { useRef, useState } from "react";
 
 import { TurnstileWidget } from "@/components/security/turnstile-widget";
-import { Button } from "@/components/ui/button";
 import { strings } from "@/content/strings";
 
-const inputClass =
-  "mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm shadow-xs outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30";
+const inputClass = "field mt-1.5";
 
 export function PhotoSubmissionForm({
   siteKey,
@@ -92,7 +90,7 @@ export function PhotoSubmissionForm({
       ) : null}
 
       <div>
-        <label htmlFor="photo-file" className="text-sm font-medium">
+        <label htmlFor="photo-file" className="text-xs font-semibold text-brand">
           {strings.photos.file}
         </label>
         <input
@@ -102,12 +100,12 @@ export function PhotoSubmissionForm({
           accept="image/jpeg,image/png,image/webp"
           required
           onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-          className="mt-1.5 block w-full text-sm text-muted-foreground file:mr-3 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-2 file:text-sm file:font-medium"
+          className="mt-1.5 block w-full text-sm text-muted-foreground file:mr-3 file:rounded-full file:border-0 file:bg-tint file:text-brand file:px-3 file:py-2 file:text-sm file:font-medium"
         />
       </div>
 
       <div>
-        <label htmlFor="photo-package" className="text-sm font-medium">
+        <label htmlFor="photo-package" className="text-xs font-semibold text-brand">
           {strings.photos.package}
         </label>
         <select id="photo-package" name="packageId" defaultValue="" className={inputClass}>
@@ -121,14 +119,14 @@ export function PhotoSubmissionForm({
       </div>
 
       <div>
-        <label htmlFor="photo-submitter" className="text-sm font-medium">
+        <label htmlFor="photo-submitter" className="text-xs font-semibold text-brand">
           {strings.photos.submitterName}
         </label>
         <input id="photo-submitter" name="submitterName" maxLength={200} className={inputClass} />
       </div>
 
       <div>
-        <label htmlFor="photo-caption" className="text-sm font-medium">
+        <label htmlFor="photo-caption" className="text-xs font-semibold text-brand">
           {strings.photos.caption}
         </label>
         <input id="photo-caption" name="caption" maxLength={1000} className={inputClass} />
@@ -155,9 +153,13 @@ export function PhotoSubmissionForm({
 
       <TurnstileWidget key={widgetKey} siteKey={siteKey} action="photos" onToken={setToken} />
 
-      <Button type="submit" disabled={submitting || !file || !consent || !token}>
+      <button
+        type="submit"
+        className="btn-pill"
+        disabled={submitting || !file || !consent || !token}
+      >
         {submitting ? strings.photos.sending : strings.photos.submit}
-      </Button>
+      </button>
     </form>
   );
 }
