@@ -70,10 +70,13 @@ export function convertFromLkr(
 }
 
 export function formatCurrency(amount: number, currency: Currency): string {
+  // Small converted amounts (e.g. a per-km rate in USD) keep their cents so they don't round to 0.
+  const fractionDigits = currency !== "LKR" && amount > 0 && amount < 100 ? 2 : 0;
   return new Intl.NumberFormat(currency === "LKR" ? "en-LK" : "en-US", {
     style: "currency",
     currency,
-    maximumFractionDigits: 0,
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
   }).format(amount);
 }
 

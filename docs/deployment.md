@@ -14,7 +14,7 @@ Caddy :443 -> 127.0.0.1:3000
 Node.js / systemd (user: golanka)
   |-- PostgreSQL 17 on 127.0.0.1:5432
   |-- /var/lib/golanka/media
-  |-- Resend / Anthropic / exchange-rate API (outbound)
+  |-- Resend / DeepSeek / exchange-rate API (outbound)
   |
 systemd timers -> rates refresh / encrypted backup
   |
@@ -32,7 +32,7 @@ encrypted off-site backup (R2/B2)
 - SSH key access.
 - A local copy of this repository.
 - Production values for the `.env.production.example` variables.
-- Anthropic key, Resend domain/API key, Turnstile production keys.
+- DeepSeek API key, Resend domain/API key, Turnstile production keys.
 - A production Supabase replacement is not required.
 
 ## 3. Base host hardening
@@ -263,7 +263,7 @@ Additional admins are invited by the owner from `/admin/team`. Production Resend
 
 ## 12. Still required before production
 
-- Domain name, VPS SSH access, Cloudflare account, production PostgreSQL database, Resend domain, production Turnstile keys, Anthropic key, and brand/legal/content inputs.
+- Domain name, VPS SSH access, Cloudflare account, production PostgreSQL database, Resend domain, production Turnstile keys, DeepSeek API key, and brand/legal/content inputs.
 - Final `.env.production` values.
 - Verified backup destination and restore drill.
 - External penetration test or documented security review.

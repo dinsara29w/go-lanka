@@ -5,7 +5,7 @@ import { PDFDocument, StandardFonts, rgb, type PDFFont } from "pdf-lib";
 import { formatLkr } from "@/lib/currency";
 import { BOARD_LABELS, type BoardType, type BudgetTier } from "@/lib/tour-builder";
 import type { GeneratedItinerary } from "@/lib/validation/tour-builder";
-import type { QuoteBreakdown } from "@/server/ai/pricing";
+import { describeRide, describeStay, type QuoteBreakdown } from "@/server/ai/pricing";
 import type { TourBuilderDestination } from "@/server/ai/context";
 
 export type PdfQuiz = {
@@ -261,27 +261,12 @@ export async function generateItineraryPdf(input: {
 
   // Quotation summary.
   const breakdown = input.breakdown;
-  const quoteLines: Array<[string, string]> = [
-    [
-      "Package",
-      `${breakdown.package.title} — ${formatLkr(breakdown.package.adjustedDailyRateLkr)} per adult/day × ${breakdown.package.days} days × ${breakdown.package.travellerUnits} traveller units`,
-    ],
-    [
-      "Board adjustment",
-      `${breakdown.package.boardPercent}% (${BOARD_LABELS[breakdown.package.board]})`,
-    ],
-  ];
-  if (breakdown.ride.vehicleName) {
-    quoteLines.push([
-      "Transport",
-      `${breakdown.ride.vehicleName} — ${breakdown.ride.distanceKm} km × ${formatLkr(breakdown.ride.perKmRateLkr)} per km` +
-        (breakdown.ride.driverLkr > 0
-          ? ` + driver ${breakdown.ride.driverDays} days × ${formatLkr(breakdown.ride.driverDailyRateLkr)}`
-          : " (self-drive, no driver)"),
-    ]);
-  } else {
-    quoteLines.push(["Transport", "To be confirmed by the team"]);
-  }
+  const quoteLines: Array<[string, string]> = breakdown.stay
+    ? [
+        ["Hotels", describeStay(breakdown)],
+        ["Transport", describeRide(breakdown)],
+      ]
+    : [["Pricing", "Confirmed by the team"]];
 
   const estimatedHeight = 120 + quoteLines.length * 30;
   if (y < MARGIN + estimatedHeight) {

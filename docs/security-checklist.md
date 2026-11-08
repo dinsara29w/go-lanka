@@ -1,6 +1,6 @@
 # Security Verification Checklist
 
-**Status:** Implementation verification complete; production infrastructure checks remain pending until the VPS/domain/Cloudflare/Resend/Anthropic credentials are provided.
+**Status:** Implementation verification complete; production infrastructure checks remain pending until the VPS/domain/Cloudflare/Resend/DeepSeek credentials are provided.
 
 Target baseline: OWASP ASVS Level 2 across the application, with Level 3-style controls for admin authentication, session handling, and infrastructure.
 
@@ -97,7 +97,7 @@ Legend: **Implemented/tested** means covered by code and automated tests; **pend
 - [ ] Cloudflare TLS Full (strict), WAF, origin restriction (pending production)
 - [ ] Production Turnstile keys (pending client)
 - [ ] Production Resend domain verification and DMARC (pending client)
-- [ ] Anthropic API key and cost budget (pending client)
+- [ ] DeepSeek API key and cost budget (pending client; the key shared in chat on 2026-11-08 must be rotated)
 - [ ] Verify production CSP with real third-party Turnstile assets
 - [ ] External penetration test or independent review (pending budget)
 
@@ -119,7 +119,7 @@ The Playwright suite covers authentication, MFA/setup, session expiry, admin CRU
 
 ## Known residual risks / exceptions
 
-- **Live AI not exercised:** no `ANTHROPIC_API_KEY` locally; fallback is tested, but a real model response, cost, and latency have not been verified.
+- **Live AI:** exercised against DeepSeek on 2026-11-08 (driver and self-drive quotes generated, validated and priced, about 30 s per itinerary). Production cost and rate limits have not been measured.
 - **No external penetration test yet.**
 - **ZAP baseline:** not run; it requires a staging deployment (pending production).
 - **Lighthouse:** local mobile measurements show LCP < 0.5 s and CLS 0, but a full Lighthouse run against the production host is still pending.

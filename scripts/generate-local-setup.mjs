@@ -38,8 +38,9 @@ MIGRATION_DATABASE_URL=postgresql://golanka_migrator:${migrationPassword}@localh
 IP_HASH_SECRET=${ipHashSecret}
 MFA_ENCRYPTION_KEY=${mfaKey}
 
-ANTHROPIC_API_KEY=
-ANTHROPIC_MODEL=claude-sonnet-5-5
+DEEPSEEK_API_KEY=
+DEEPSEEK_MODEL=deepseek-chat
+DEEPSEEK_BASE_URL=https://api.deepseek.com
 RESEND_API_KEY=
 EMAIL_FROM=
 ADMIN_NOTIFICATION_EMAIL=

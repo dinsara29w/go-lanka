@@ -45,33 +45,38 @@ const itinerary = {
   ],
 };
 
+// Matches QuoteBreakdown in src/server/ai/pricing.ts.
 const breakdown = {
   package: {
     id: "00000000-0000-4000-8000-000000000000",
     title: "Builder Test Package",
     slug: "builder-package",
+  },
+  stay: {
     tier: "star",
-    dailyRateLkr: 25000,
-    days: 2,
+    ratePerPersonNightLkr: 60000,
+    nights: 1,
     travellerUnits: 2,
     board: "half_board",
     boardPercent: 5,
-    adjustedDailyRateLkr: 26250,
-    subtotalLkr: 105000,
+    baseLkr: 120000,
+    subtotalLkr: 126000,
   },
   ride: {
     vehicleId: null,
     vehicleName: null,
-    perKmRateLkr: 0,
+    mode: "driver",
     distanceKm: 120,
+    days: 2,
+    dailyRateLkr: 0,
+    dailyLkr: 0,
+    includedKm: 0,
+    chargedKm: 120,
+    perKmRateLkr: 0,
     distanceLkr: 0,
-    selfDrive: false,
-    driverDays: 2,
-    driverDailyRateLkr: 0,
-    driverLkr: 0,
     subtotalLkr: 0,
   },
-  totalLkr: 105000,
+  totalLkr: 126000,
   notes: [],
 };
 

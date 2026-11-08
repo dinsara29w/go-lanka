@@ -2,7 +2,7 @@
 
 Custom, security-first tour-booking platform. No BaaS: the backend is application code backed by PostgreSQL.
 
-**Current status:** P0–P6 implementation complete. The public site, admin panel, booking flow, AI tour builder, multi-currency support, accessibility/SEO foundation, retention cleanup and deployment runbooks are implemented on local PostgreSQL. Launch now depends on production infrastructure (VPS, Cloudflare, Resend, Turnstile, Anthropic), a restore drill, an external security review, and client-supplied brand/content/legal copy. Live AI generation still requires an `ANTHROPIC_API_KEY`; without it the builder degrades to a contact fallback.
+**Current status:** P0–P6 implementation complete. The public site, admin panel, booking flow, AI tour builder, multi-currency support, accessibility/SEO foundation, retention cleanup and deployment runbooks are implemented on local PostgreSQL. Launch now depends on production infrastructure (VPS, Cloudflare, Resend, Turnstile, DeepSeek), a restore drill, an external security review, and client-supplied brand/content/legal copy. Live AI generation requires a `DEEPSEEK_API_KEY`; without it the builder degrades to a contact fallback.
 
 ## Documentation
 
@@ -99,15 +99,15 @@ The repository deliberately does not contain `.env.local` or database passwords.
 
 ## AI tour builder and currency
 
-- `/tour-builder` collects interests, budget, duration, pace, month, group size and optional must-see destinations.
+- `/tour-builder` collects destinations, budget tier, meal plan, vehicle (with a driver or self-drive), days and nights, month, group size and notes.
 - The server builds context only from published destinations, packages, activities and itinerary accommodation/meals.
-- Claude is called server-side with structured output; the model cannot set prices. The price range is computed from package pricing in code.
+- DeepSeek is called server-side in JSON mode and the output is validated; the model cannot set prices. The quote is computed in code from the client rate card (hotel tier, meal plan, vehicle) in `/admin/rates`. See [AI tour builder notes](./docs/ai-tour-builder.md).
 - Invalid or failed model output retries once, then falls back to a contact prompt.
 - Generated PDFs are stored privately and served through expiring capability links. They contain the itinerary, computed price range and the AI disclaimer.
 - “Request this quote” creates a custom booking with the generated itinerary.
 - Multi-currency uses LKR as the stored base. `npm run rates:refresh` fetches USD/EUR/GBP from the free `open.er-api.com` provider; the daily cron route is `/api/cron/rates`.
 - If no current rate exists, prices fall back to LKR.
-- Live AI generation requires `ANTHROPIC_API_KEY`. Without it, `/tour-builder` shows the safe contact fallback instead of making a model call.
+- Live AI generation requires `DEEPSEEK_API_KEY`. Without it, `/tour-builder` shows the safe contact fallback instead of making a model call.
 - Run `npm run rates:refresh` after setup to populate exchange rates; production should call `/api/cron/rates` daily with the configured cron secret.
 - Retention cleanup runs from `POST /api/cron/retention` with the same secret. It deletes expired PDFs (after a one-day grace period), rate-limit rows, stale sessions/tokens, AI sessions older than 30 days and audit rows older than 365 days. Production schedules it with `golanka-retention.timer`.
 

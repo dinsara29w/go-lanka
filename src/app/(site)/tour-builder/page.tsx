@@ -6,6 +6,7 @@ import { fallbackImage, siteImages } from "@/content/site-images";
 import { strings } from "@/content/strings";
 import { getTourBuilderContext } from "@/server/ai/context";
 import { listMapDestinations } from "@/server/repositories/destinations";
+import { getTourBuilderRates } from "@/server/repositories/tour-builder-rates";
 
 export const dynamic = "force-dynamic";
 
@@ -26,10 +27,11 @@ export default async function TourBuilderPage({
 }: {
   searchParams: Promise<{ days?: string; adults?: string }>;
 }) {
-  const [params, context, mapDestinations] = await Promise.all([
+  const [params, context, mapDestinations, rates] = await Promise.all([
     searchParams,
     getTourBuilderContext(),
     listMapDestinations(),
+    getTourBuilderRates(),
   ]);
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() || null;
   const images = new Map(
@@ -61,6 +63,16 @@ export default async function TourBuilderPage({
             image: images.get(destination.slug) ?? fallbackImage(index),
           }))}
           siteKey={siteKey}
+          tierRatesLkr={rates.tierRatesLkr}
+          vehicles={rates.vehicles.map((vehicle) => ({
+            id: vehicle.id,
+            name: vehicle.name,
+            mode: vehicle.mode,
+            maxPax: vehicle.maxPax,
+            perKmRateLkr: vehicle.perKmRateLkr,
+            dailyRateLkr: vehicle.dailyRateLkr,
+            includedKmPerDay: vehicle.includedKmPerDay,
+          }))}
           initialDays={clampParam(params.days, 1, 21, 7)}
           initialAdults={clampParam(params.adults, 1, 10, 2)}
         />

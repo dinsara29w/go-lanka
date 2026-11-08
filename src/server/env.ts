@@ -26,8 +26,9 @@ const serverEnvSchema = z.object({
   CRON_SECRET: z.string().min(32),
   TRUST_PROXY: z.enum(["none", "cloudflare", "caddy"]).default("none"),
   TURNSTILE_SECRET_KEY: emptyToUndefined(z.string().min(1).optional()),
-  ANTHROPIC_API_KEY: emptyToUndefined(z.string().min(1).optional()),
-  ANTHROPIC_MODEL: z.string().min(1).default("claude-sonnet-5-5"),
+  DEEPSEEK_API_KEY: emptyToUndefined(z.string().min(1).optional()),
+  DEEPSEEK_MODEL: z.string().min(1).default("deepseek-chat"),
+  DEEPSEEK_BASE_URL: z.string().url().default("https://api.deepseek.com"),
   RESEND_API_KEY: emptyToUndefined(z.string().min(1).optional()),
   EMAIL_FROM: emptyToUndefined(
     z

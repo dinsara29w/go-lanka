@@ -4,16 +4,29 @@
 
 ## Implemented in P5
 
-- Server-only Anthropic call with structured output and adaptive model behavior.
+- Server-only DeepSeek call (`deepseek-chat`, OpenAI-compatible chat completions in JSON mode); the output is validated with the same Zod schema.
 - Context is limited to published destinations, packages, activities and existing itinerary accommodation/meals.
 - User free text is passed as JSON data; prompt injection is treated as untrusted input.
 - Travel dates, days, group size, pace, budget and must-see slugs are validated.
 - Invalid model output retries once, then falls back to a contact prompt.
-- Prices are computed in code from package pricing, never from model output.
+- Prices are computed in code from the client rate card, never from model output (see "Pricing" below).
 - Itinerary sessions are stored without Turnstile tokens; IPs are hashed.
 - A designed PDF is generated with `pdf-lib` and served through a 7-day expiring capability link.
 - “Request this quote” creates a custom booking with the generated itinerary and sends customer/admin emails.
 - The PDF template uses neutral colours and standard fonts because brand assets are pending.
+
+## Pricing (client rate card, November 2026)
+
+All values are edited in `/admin/rates`; the starting values come from the client.
+
+| Item        | Rule                                                                                                                                                                                                                               |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Hotel       | Per person per night, bed and breakfast: Economy Rs 15,000, Mid-range Rs 60,000, Luxury Rs 125,000. Children pay the child rate (default 50%).                                                                                     |
+| Meal plan   | Applied to the hotel total: room only −10%, bed and breakfast 0%, half board +5%, full board +10%.                                                                                                                                 |
+| With driver | The traveller picks a vehicle that seats the group: tuk tuk Rs 100/km, car Rs 180/km, van Rs 250/km, bus Rs 300/km, charged on the AI-estimated route distance. An optional driver allowance per day can be set.                   |
+| Self-drive  | Bike Rs 1,500/day, tuk tuk Rs 2,000/day, car Rs 6,000/day, each with 200 km/day included. Extra km use that vehicle type's with-driver per-km rate (tuk tuk Rs 100, car Rs 180); the bike has none, so the team confirms extra km. |
+
+Vehicle seats (tuk tuk 2, bike 2, car 3, van 9, bus 30) are suggested values for the client to confirm. The selected package is the AI's route basis only; its daily rate is no longer part of the quote. The team reviews every quote before it is sent.
 
 ## Current understanding
 

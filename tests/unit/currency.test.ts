@@ -33,5 +33,7 @@ describe("currency conversion", () => {
   it("formats converted prices", () => {
     expect(formatConvertedPrice(30000, "USD", rates)).toContain("100");
     expect(formatConvertedPrice(30000, "USD", null)).toBeNull();
+    // Per-km rates stay readable after conversion instead of rounding to $0.
+    expect(formatConvertedPrice(100, "USD", rates)).toMatch(/\$0\.\d\d/);
   });
 });

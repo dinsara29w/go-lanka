@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { Button } from "@/components/ui/button";
+import { VEHICLE_MODE_LABELS, VEHICLE_MODES, type VehicleMode } from "@/lib/tour-builder";
 import { strings } from "@/content/strings";
 import { requireAdmin } from "@/server/auth/require-admin";
 import { getAdminPool } from "@/server/db/pools";
@@ -15,6 +16,9 @@ export const metadata: Metadata = {
 
 type SettingsRow = {
   admin_whatsapp_number: string | null;
+  economy_rate_lkr: string;
+  star_rate_lkr: string;
+  luxury_rate_lkr: string;
   room_only_percent: string;
   half_board_percent: string;
   full_board_percent: string;
@@ -24,10 +28,12 @@ type SettingsRow = {
 type VehicleRow = {
   id: string;
   name: string;
+  mode: VehicleMode;
   min_pax: number;
   max_pax: number;
   per_km_rate_lkr: string;
-  driver_daily_rate_lkr: string;
+  daily_rate_lkr: string;
+  included_km_per_day: number;
   is_active: boolean;
 };
 
@@ -43,13 +49,13 @@ export default async function AdminRatesPage({
   const params = await searchParams;
   const [settingsResult, vehicleResult] = await Promise.all([
     getAdminPool().query<SettingsRow>(
-      `SELECT admin_whatsapp_number, room_only_percent, half_board_percent,
-              full_board_percent, child_rate_percent
+      `SELECT admin_whatsapp_number, economy_rate_lkr, star_rate_lkr, luxury_rate_lkr,
+              room_only_percent, half_board_percent, full_board_percent, child_rate_percent
        FROM tour_builder_settings WHERE singleton = true LIMIT 1`,
     ),
     getAdminPool().query<VehicleRow>(
-      `SELECT id, name, min_pax, max_pax, per_km_rate_lkr,
-              driver_daily_rate_lkr, is_active
+      `SELECT id, name, mode, min_pax, max_pax, per_km_rate_lkr,
+              daily_rate_lkr, included_km_per_day, is_active
        FROM vehicles ORDER BY sort_order ASC, max_pax ASC, name ASC`,
     ),
   ]);
@@ -90,6 +96,31 @@ export default async function AdminRatesPage({
 
         <form action={saveTourRatesAction} className="mt-5 space-y-4">
           <input type="hidden" name="_csrf" value={session.csrfToken} />
+          <div className="grid gap-4 sm:grid-cols-3">
+            {(
+              [
+                ["economyRateLkr", strings.admin.economyRate, settings?.economy_rate_lkr, 15000],
+                ["starRateLkr", strings.admin.starRate, settings?.star_rate_lkr, 60000],
+                ["luxuryRateLkr", strings.admin.luxuryRate, settings?.luxury_rate_lkr, 125000],
+              ] as const
+            ).map(([name, label, value, fallback]) => (
+              <div key={name}>
+                <label htmlFor={`rates-${name}`} className="text-sm font-medium">
+                  {label}
+                </label>
+                <input
+                  id={`rates-${name}`}
+                  name={name}
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  required
+                  defaultValue={value !== undefined ? Number(value) : fallback}
+                  className={inputClass}
+                />
+              </div>
+            ))}
+          </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="rates-room-only" className="text-sm font-medium">
@@ -188,87 +219,12 @@ export default async function AdminRatesPage({
               <form
                 key={vehicle.id}
                 action={saveVehicleAction}
-                className="grid gap-3 rounded-xl border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-6 lg:items-end"
+                className="grid gap-3 rounded-xl border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4 lg:items-end"
               >
                 <input type="hidden" name="_csrf" value={session.csrfToken} />
                 <input type="hidden" name="id" value={vehicle.id} />
-                <div className="lg:col-span-2">
-                  <label htmlFor={`vehicle-name-${vehicle.id}`} className="text-xs font-medium">
-                    {strings.admin.vehicleName}
-                  </label>
-                  <input
-                    id={`vehicle-name-${vehicle.id}`}
-                    name="name"
-                    required
-                    defaultValue={vehicle.name}
-                    className={inputClass}
-                  />
-                </div>
-                <div>
-                  <label htmlFor={`vehicle-min-${vehicle.id}`} className="text-xs font-medium">
-                    {strings.admin.minPax}
-                  </label>
-                  <input
-                    id={`vehicle-min-${vehicle.id}`}
-                    name="minPax"
-                    type="number"
-                    min={1}
-                    max={60}
-                    required
-                    defaultValue={vehicle.min_pax}
-                    className={inputClass}
-                  />
-                </div>
-                <div>
-                  <label htmlFor={`vehicle-max-${vehicle.id}`} className="text-xs font-medium">
-                    {strings.admin.maxPax}
-                  </label>
-                  <input
-                    id={`vehicle-max-${vehicle.id}`}
-                    name="maxPax"
-                    type="number"
-                    min={1}
-                    max={60}
-                    required
-                    defaultValue={vehicle.max_pax}
-                    className={inputClass}
-                  />
-                </div>
-                <div>
-                  <label htmlFor={`vehicle-km-${vehicle.id}`} className="text-xs font-medium">
-                    {strings.admin.perKmRate}
-                  </label>
-                  <input
-                    id={`vehicle-km-${vehicle.id}`}
-                    name="perKmRateLkr"
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    required
-                    defaultValue={Number(vehicle.per_km_rate_lkr)}
-                    className={inputClass}
-                  />
-                </div>
-                <div>
-                  <label htmlFor={`vehicle-driver-${vehicle.id}`} className="text-xs font-medium">
-                    {strings.admin.driverDailyRate}
-                  </label>
-                  <input
-                    id={`vehicle-driver-${vehicle.id}`}
-                    name="driverDailyRateLkr"
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    required
-                    defaultValue={Number(vehicle.driver_daily_rate_lkr)}
-                    className={inputClass}
-                  />
-                </div>
-                <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" name="isActive" defaultChecked={vehicle.is_active} />
-                  {strings.admin.active}
-                </label>
-                <div className="flex gap-2 lg:col-span-2">
+                <VehicleFields idPrefix={vehicle.id} vehicle={vehicle} />
+                <div className="flex gap-2 sm:col-span-2 lg:col-span-4">
                   <Button type="submit" size="sm">
                     {strings.admin.saveVehicle}
                   </Button>
@@ -288,86 +244,11 @@ export default async function AdminRatesPage({
 
         <form
           action={saveVehicleAction}
-          className="grid gap-3 rounded-xl border border-dashed border-border bg-muted/20 p-4 sm:grid-cols-2 lg:grid-cols-6 lg:items-end"
+          className="grid gap-3 rounded-xl border border-dashed border-border bg-muted/20 p-4 sm:grid-cols-2 lg:grid-cols-4 lg:items-end"
         >
           <input type="hidden" name="_csrf" value={session.csrfToken} />
-          <div className="lg:col-span-2">
-            <label htmlFor="new-vehicle-name" className="text-xs font-medium">
-              {strings.admin.vehicleName}
-            </label>
-            <input
-              id="new-vehicle-name"
-              name="name"
-              required
-              className={inputClass}
-              placeholder="Toyota HiAce"
-            />
-          </div>
-          <div>
-            <label htmlFor="new-vehicle-min" className="text-xs font-medium">
-              {strings.admin.minPax}
-            </label>
-            <input
-              id="new-vehicle-min"
-              name="minPax"
-              type="number"
-              min={1}
-              max={60}
-              required
-              defaultValue={1}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label htmlFor="new-vehicle-max" className="text-xs font-medium">
-              {strings.admin.maxPax}
-            </label>
-            <input
-              id="new-vehicle-max"
-              name="maxPax"
-              type="number"
-              min={1}
-              max={60}
-              required
-              defaultValue={4}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label htmlFor="new-vehicle-km" className="text-xs font-medium">
-              {strings.admin.perKmRate}
-            </label>
-            <input
-              id="new-vehicle-km"
-              name="perKmRateLkr"
-              type="number"
-              min={0}
-              step="0.01"
-              required
-              defaultValue={0}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label htmlFor="new-vehicle-driver" className="text-xs font-medium">
-              {strings.admin.driverDailyRate}
-            </label>
-            <input
-              id="new-vehicle-driver"
-              name="driverDailyRateLkr"
-              type="number"
-              min={0}
-              step="0.01"
-              required
-              defaultValue={0}
-              className={inputClass}
-            />
-          </div>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" name="isActive" defaultChecked />
-            {strings.admin.active}
-          </label>
-          <div className="lg:col-span-2">
+          <VehicleFields idPrefix="new" vehicle={null} />
+          <div className="sm:col-span-2 lg:col-span-4">
             <Button type="submit" size="sm">
               {strings.admin.addVehicle}
             </Button>
@@ -375,5 +256,130 @@ export default async function AdminRatesPage({
         </form>
       </section>
     </div>
+  );
+}
+
+function VehicleFields({ idPrefix, vehicle }: { idPrefix: string; vehicle: VehicleRow | null }) {
+  const field = (name: string) => `vehicle-${name}-${idPrefix}`;
+  return (
+    <>
+      <div>
+        <label htmlFor={field("name")} className="text-xs font-medium">
+          {strings.admin.vehicleName}
+        </label>
+        <input
+          id={field("name")}
+          name="name"
+          required
+          defaultValue={vehicle?.name ?? ""}
+          placeholder="Van"
+          className={inputClass}
+        />
+      </div>
+      <div>
+        <label htmlFor={field("mode")} className="text-xs font-medium">
+          {strings.admin.vehicleMode}
+        </label>
+        <select
+          id={field("mode")}
+          name="mode"
+          defaultValue={vehicle?.mode ?? "driver"}
+          className={inputClass}
+        >
+          {VEHICLE_MODES.map((mode) => (
+            <option key={mode} value={mode}>
+              {VEHICLE_MODE_LABELS[mode]}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label htmlFor={field("min")} className="text-xs font-medium">
+          {strings.admin.minPax}
+        </label>
+        <input
+          id={field("min")}
+          name="minPax"
+          type="number"
+          min={1}
+          max={60}
+          required
+          defaultValue={vehicle?.min_pax ?? 1}
+          className={inputClass}
+        />
+      </div>
+      <div>
+        <label htmlFor={field("max")} className="text-xs font-medium">
+          {strings.admin.maxPax}
+        </label>
+        <input
+          id={field("max")}
+          name="maxPax"
+          type="number"
+          min={1}
+          max={60}
+          required
+          defaultValue={vehicle?.max_pax ?? 4}
+          className={inputClass}
+        />
+      </div>
+      <div>
+        <label htmlFor={field("km")} className="text-xs font-medium">
+          {strings.admin.perKmRate}
+        </label>
+        <input
+          id={field("km")}
+          name="perKmRateLkr"
+          type="number"
+          min={0}
+          step="0.01"
+          required
+          defaultValue={vehicle ? Number(vehicle.per_km_rate_lkr) : 0}
+          className={inputClass}
+          aria-describedby={field("km-hint")}
+        />
+        <p id={field("km-hint")} className="mt-1 text-xs text-muted-foreground">
+          {strings.admin.perKmRateHint}
+        </p>
+      </div>
+      <div>
+        <label htmlFor={field("daily")} className="text-xs font-medium">
+          {strings.admin.driverDailyRate}
+        </label>
+        <input
+          id={field("daily")}
+          name="dailyRateLkr"
+          type="number"
+          min={0}
+          step="0.01"
+          required
+          defaultValue={vehicle ? Number(vehicle.daily_rate_lkr) : 0}
+          className={inputClass}
+          aria-describedby={field("daily-hint")}
+        />
+        <p id={field("daily-hint")} className="mt-1 text-xs text-muted-foreground">
+          {strings.admin.vehicleDailyHint}
+        </p>
+      </div>
+      <div>
+        <label htmlFor={field("included")} className="text-xs font-medium">
+          {strings.admin.includedKm}
+        </label>
+        <input
+          id={field("included")}
+          name="includedKmPerDay"
+          type="number"
+          min={0}
+          max={2000}
+          required
+          defaultValue={vehicle?.included_km_per_day ?? 0}
+          className={inputClass}
+        />
+      </div>
+      <label className="flex items-center gap-2 self-center text-sm">
+        <input type="checkbox" name="isActive" defaultChecked={vehicle?.is_active ?? true} />
+        {strings.admin.active}
+      </label>
+    </>
   );
 }

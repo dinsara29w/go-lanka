@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import { generatedItinerarySchema, quoteRequestSchema } from "@/lib/validation/tour-builder";
-import { computeQuote, type TourBuilderRates } from "@/server/ai/pricing";
+import {
+  computeQuote,
+  vehiclesForParty,
+  type TourBuilderRates,
+  type VehicleRate,
+} from "@/server/ai/pricing";
 import { generateItineraryPdf } from "@/server/ai/pdf";
 
 const packageId = "11111111-1111-4111-8111-111111111111";
@@ -29,6 +34,7 @@ const quiz = {
   budget: "star" as const,
   board: "half_board" as const,
   selfDrive: false,
+  vehicleId: null,
   days: 1,
   nights: 0,
   travelMonth: 2,
@@ -38,41 +44,70 @@ const quiz = {
   turnstileToken: "test",
 };
 
+// The client's rate card (db/migrations/20261108090000_client_rate_card.sql).
+const car: VehicleRate = {
+  id: vehicleId,
+  name: "Car",
+  mode: "driver",
+  minPax: 1,
+  maxPax: 3,
+  perKmRateLkr: 180,
+  dailyRateLkr: 0,
+  includedKmPerDay: 0,
+};
+const selfDriveCar: VehicleRate = {
+  ...car,
+  id: "33333333-3333-4333-8333-333333333333",
+  mode: "self_drive",
+  dailyRateLkr: 6000,
+  includedKmPerDay: 200,
+};
+const bike: VehicleRate = {
+  ...selfDriveCar,
+  id: "44444444-4444-4444-8444-444444444444",
+  name: "Bike",
+  maxPax: 2,
+  perKmRateLkr: 0,
+  dailyRateLkr: 1500,
+};
+const van: VehicleRate = {
+  ...car,
+  id: "55555555-5555-4555-8555-555555555555",
+  name: "Van",
+  maxPax: 9,
+  perKmRateLkr: 250,
+};
+
 const rates: TourBuilderRates = {
   adminWhatsAppNumber: null,
+  tierRatesLkr: { economy: 15_000, star: 60_000, luxury: 125_000 },
   roomOnlyPercent: -10,
   halfBoardPercent: 5,
   fullBoardPercent: 10,
   childRatePercent: 50,
-  vehicles: [
-    {
-      id: vehicleId,
-      name: "Test van",
-      minPax: 1,
-      maxPax: 6,
-      perKmRateLkr: 100,
-      driverDailyRateLkr: 5000,
-    },
-  ],
+  vehicles: [car, selfDriveCar, bike, van],
 };
 
-const breakdown = computeQuote({
-  package: {
-    id: packageId,
-    title: "Test package",
-    slug: "test-package",
-    tier: "star",
-    dailyRateLkr: 10_000,
-  },
-  rates,
-  board: quiz.board,
-  days: quiz.days,
-  adults: quiz.adults,
-  children: quiz.children,
-  selfDrive: quiz.selfDrive,
-  distanceKm: itinerary.days[0].travel_km,
-  vehicle: rates.vehicles[0],
-});
+const basePackage = { id: packageId, title: "Test package", slug: "test-package" };
+
+function quote(overrides: Partial<Parameters<typeof computeQuote>[0]> = {}) {
+  return computeQuote({
+    package: basePackage,
+    rates,
+    budget: "star",
+    board: "bed_breakfast",
+    days: 7,
+    nights: 6,
+    adults: 2,
+    children: 0,
+    mode: "driver",
+    distanceKm: 500,
+    vehicle: car,
+    ...overrides,
+  });
+}
+
+const breakdown = quote({ days: 1, nights: 0, adults: 2, children: 1, board: "half_board" });
 
 describe("tour builder validation", () => {
   it("accepts a valid generated itinerary", () => {
@@ -97,39 +132,59 @@ describe("tour builder validation", () => {
 });
 
 describe("tour builder pricing", () => {
-  it("prices the package by day, board percentage and traveller units", () => {
-    expect(breakdown.package.travellerUnits).toBe(2.5);
-    expect(breakdown.package.adjustedDailyRateLkr).toBe(10_500);
-    expect(breakdown.package.subtotalLkr).toBe(26_250);
+  it("prices hotels per person per night by budget tier, bed and breakfast", () => {
+    const result = quote();
+    expect(result.stay.ratePerPersonNightLkr).toBe(60_000);
+    expect(result.stay.baseLkr).toBe(720_000);
+    expect(result.stay.boardPercent).toBe(0);
+    expect(result.stay.subtotalLkr).toBe(720_000);
   });
 
-  it("prices transport per kilometre plus a driver day", () => {
-    expect(breakdown.ride.distanceLkr).toBe(12_000);
-    expect(breakdown.ride.driverLkr).toBe(5_000);
-    expect(breakdown.ride.subtotalLkr).toBe(17_000);
-    expect(breakdown.totalLkr).toBe(43_300);
+  it("applies the meal-plan percentage to the hotel total", () => {
+    const economy = { budget: "economy" as const, nights: 2, adults: 2, children: 1 };
+    // 15,000 × 2 nights × 2.5 traveller units (child at 50%) = 75,000
+    expect(quote({ ...economy, board: "room_only" }).stay.subtotalLkr).toBe(67_500);
+    expect(quote({ ...economy, board: "bed_breakfast" }).stay.subtotalLkr).toBe(75_000);
+    expect(quote({ ...economy, board: "half_board" }).stay.subtotalLkr).toBe(78_750);
+    expect(quote({ ...economy, board: "full_board" }).stay.subtotalLkr).toBe(82_500);
   });
 
-  it("removes the driver charge for self-drive", () => {
-    const selfDrive = computeQuote({
-      package: {
-        id: packageId,
-        title: "Test package",
-        slug: "test-package",
-        tier: "star",
-        dailyRateLkr: 10_000,
-      },
-      rates,
-      board: quiz.board,
-      days: quiz.days,
-      adults: quiz.adults,
-      children: quiz.children,
-      selfDrive: true,
-      distanceKm: itinerary.days[0].travel_km,
-      vehicle: rates.vehicles[0],
-    });
-    expect(selfDrive.ride.driverLkr).toBe(0);
-    expect(selfDrive.totalLkr).toBe(38_300);
+  it("charges a driven vehicle per km of the route", () => {
+    const result = quote();
+    expect(result.ride.chargedKm).toBe(500);
+    expect(result.ride.distanceLkr).toBe(90_000);
+    expect(result.ride.subtotalLkr).toBe(90_000);
+    expect(result.totalLkr).toBe(810_000);
+  });
+
+  it("charges self-drive per day with 200 km/day included and extra km per km", () => {
+    const result = quote({ mode: "self_drive", vehicle: selfDriveCar, days: 3, distanceKm: 700 });
+    expect(result.ride.dailyLkr).toBe(18_000);
+    expect(result.ride.includedKm).toBe(600);
+    expect(result.ride.chargedKm).toBe(100);
+    expect(result.ride.distanceLkr).toBe(18_000);
+    expect(result.ride.subtotalLkr).toBe(36_000);
+  });
+
+  it("does not charge extra km when the allowance covers the route", () => {
+    const result = quote({ mode: "self_drive", vehicle: selfDriveCar, days: 3, distanceKm: 450 });
+    expect(result.ride.chargedKm).toBe(0);
+    expect(result.ride.subtotalLkr).toBe(18_000);
+  });
+
+  it("flags extra km for the team when a self-drive vehicle has no per-km rate", () => {
+    const result = quote({ mode: "self_drive", vehicle: bike, days: 3, distanceKm: 700 });
+    expect(result.ride.distanceLkr).toBe(0);
+    expect(result.notes.some((note) => note.includes("extra-km"))).toBe(true);
+  });
+
+  it("offers only vehicles of the chosen type that seat the party", () => {
+    expect(vehiclesForParty(rates.vehicles, "driver", 2).map((v) => v.name)).toEqual([
+      "Car",
+      "Van",
+    ]);
+    expect(vehiclesForParty(rates.vehicles, "driver", 5).map((v) => v.name)).toEqual(["Van"]);
+    expect(vehiclesForParty(rates.vehicles, "self_drive", 3).map((v) => v.name)).toEqual(["Car"]);
   });
 });
 

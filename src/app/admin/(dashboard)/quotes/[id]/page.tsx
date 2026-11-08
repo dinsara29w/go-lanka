@@ -5,7 +5,13 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { strings } from "@/content/strings";
 import { formatLkr } from "@/lib/currency";
-import { BOARD_LABELS, BOARD_TYPES } from "@/lib/tour-builder";
+import {
+  BOARD_LABELS,
+  BOARD_TYPES,
+  BUDGET_LABELS,
+  VEHICLE_MODE_LABELS,
+  type VehicleMode,
+} from "@/lib/tour-builder";
 import type { GeneratedItinerary } from "@/lib/validation/tour-builder";
 import type { QuoteBreakdown } from "@/server/ai/pricing";
 import { requireAdmin } from "@/server/auth/require-admin";
@@ -64,6 +70,7 @@ type PackageOption = {
 type VehicleOption = {
   id: string;
   name: string;
+  mode: VehicleMode;
   max_pax: number;
   is_active: boolean;
 };
@@ -107,13 +114,14 @@ export default async function AdminQuotePage({
       `SELECT id, title, daily_rate_lkr, tier FROM packages ORDER BY title ASC`,
     ),
     getAdminPool().query<VehicleOption>(
-      `SELECT id, name, max_pax, is_active FROM vehicles ORDER BY max_pax ASC, name ASC`,
+      `SELECT id, name, mode, max_pax, is_active FROM vehicles ORDER BY sort_order ASC, max_pax ASC, name ASC`,
     ),
   ]);
   const quote = quoteResult.rows[0];
   if (!quote) notFound();
 
-  const breakdown = quote.breakdown as QuoteBreakdown;
+  // Quotes saved before the client rate card have no `stay` section.
+  const breakdown = quote.breakdown as Partial<QuoteBreakdown> as QuoteBreakdown | null;
   const itinerary = quote.itinerary as GeneratedItinerary;
   const totalLkr = Number(quote.final_total_lkr ?? quote.total_lkr);
 
@@ -227,43 +235,56 @@ export default async function AdminQuotePage({
         <div className="space-y-6">
           <section className="rounded-xl border border-border bg-card p-5">
             <h2 className="font-heading text-xl font-semibold">{strings.admin.quotePricing}</h2>
-            <dl className="mt-4 space-y-3 text-sm">
-              <div className="flex justify-between gap-4">
-                <dt className="text-muted-foreground">{strings.admin.quotePackage}</dt>
-                <dd className="text-right font-medium">{breakdown.package.title}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-muted-foreground">{strings.admin.dailyRateLkr}</dt>
-                <dd className="text-right">{formatLkr(breakdown.package.dailyRateLkr)}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-muted-foreground">{strings.admin.quoteBoard}</dt>
-                <dd className="text-right">
-                  {BOARD_LABELS[breakdown.package.board]} ({breakdown.package.boardPercent}%)
-                </dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-muted-foreground">{strings.admin.quotePackage}</dt>
-                <dd className="text-right">{formatLkr(breakdown.package.subtotalLkr)}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-muted-foreground">{strings.admin.quoteVehicle}</dt>
-                <dd className="text-right">{breakdown.ride.vehicleName ?? "—"}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-muted-foreground">{strings.admin.quoteDistance}</dt>
-                <dd className="text-right">{breakdown.ride.distanceKm} km</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-muted-foreground">Transport</dt>
-                <dd className="text-right">{formatLkr(breakdown.ride.subtotalLkr)}</dd>
-              </div>
-              <div className="flex justify-between gap-4 border-t border-border pt-3 font-semibold">
-                <dt>{strings.admin.quoteTotal}</dt>
-                <dd className="text-right">{formatLkr(totalLkr)}</dd>
-              </div>
-            </dl>
-            {breakdown.notes?.length ? (
+            {breakdown?.stay ? (
+              <dl className="mt-4 space-y-3 text-sm">
+                <Row label={strings.admin.quotePackage} value={breakdown.package.title} strong />
+                <Row
+                  label={strings.admin.quoteHotel}
+                  value={`${BUDGET_LABELS[breakdown.stay.tier]} · ${formatLkr(breakdown.stay.ratePerPersonNightLkr)} × ${breakdown.stay.nights} nights × ${breakdown.stay.travellerUnits}`}
+                />
+                <Row
+                  label={strings.admin.quoteBoard}
+                  value={`${BOARD_LABELS[breakdown.stay.board]} (${breakdown.stay.boardPercent > 0 ? "+" : ""}${breakdown.stay.boardPercent}%)`}
+                />
+                <Row
+                  label={strings.admin.quoteStay}
+                  value={formatLkr(breakdown.stay.subtotalLkr)}
+                />
+                <Row
+                  label={strings.admin.quoteVehicle}
+                  value={
+                    breakdown.ride.vehicleName
+                      ? `${breakdown.ride.vehicleName} (${VEHICLE_MODE_LABELS[breakdown.ride.mode]})`
+                      : "—"
+                  }
+                />
+                <Row
+                  label={strings.admin.quoteDistance}
+                  value={`${breakdown.ride.distanceKm} km`}
+                />
+                {breakdown.ride.dailyLkr > 0 ? (
+                  <Row
+                    label={strings.admin.quoteDaily}
+                    value={`${formatLkr(breakdown.ride.dailyRateLkr)} × ${breakdown.ride.days} = ${formatLkr(breakdown.ride.dailyLkr)}`}
+                  />
+                ) : null}
+                <Row
+                  label={strings.admin.quoteKm}
+                  value={`${breakdown.ride.chargedKm} km × ${formatLkr(breakdown.ride.perKmRateLkr)} = ${formatLkr(breakdown.ride.distanceLkr)}`}
+                />
+                <Row
+                  label={strings.admin.quoteTransport}
+                  value={formatLkr(breakdown.ride.subtotalLkr)}
+                />
+                <div className="flex justify-between gap-4 border-t border-border pt-3 font-semibold">
+                  <dt>{strings.admin.quoteTotal}</dt>
+                  <dd className="text-right">{formatLkr(totalLkr)}</dd>
+                </div>
+              </dl>
+            ) : (
+              <p className="mt-4 text-sm text-muted-foreground">{strings.admin.quoteOldFormat}</p>
+            )}
+            {breakdown?.notes?.length ? (
               <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
                 {breakdown.notes.map((note) => (
                   <li key={note}>• {note}</li>
@@ -311,7 +332,8 @@ export default async function AdminQuotePage({
                   <option value="">{strings.admin.noVehicleSelected}</option>
                   {vehicleResult.rows.map((item) => (
                     <option key={item.id} value={item.id}>
-                      {item.name} (up to {item.max_pax})
+                      {item.name}, {VEHICLE_MODE_LABELS[item.mode].toLowerCase()} (up to{" "}
+                      {item.max_pax})
                     </option>
                   ))}
                 </select>
@@ -427,6 +449,15 @@ export default async function AdminQuotePage({
           </section>
         </div>
       </div>
+    </div>
+  );
+}
+
+function Row({ label, value, strong = false }: { label: string; value: string; strong?: boolean }) {
+  return (
+    <div className="flex justify-between gap-4">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className={strong ? "text-right font-medium" : "text-right"}>{value}</dd>
     </div>
   );
 }
