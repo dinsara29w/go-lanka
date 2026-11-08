@@ -56,7 +56,7 @@ Boundary 7: backups -> off-site storage
 - Customer booking PII (name, email, phone, country, travel plans)
 - Photo submissions and moderation state
 - Booking, availability, and pricing integrity
-- Anthropic, Resend, exchange-rate, and database credentials
+- DeepSeek, Resend, exchange-rate, and database credentials
 - Backups
 - Site content and admin audit history
 - Domain, DNS, Cloudflare, and VPS access
@@ -273,7 +273,7 @@ The cookie is never placed in URLs, logs, or client-readable storage. Developmen
 
 - No user-supplied URLs are fetched.
 - Exchange-rate host is a fixed allowlist entry.
-- Anthropic and Resend base URLs are fixed by the SDK/provider.
+- The Resend base URL is fixed by its SDK; the DeepSeek base URL comes from `DEEPSEEK_BASE_URL` (default `https://api.deepseek.com`).
 - No open redirects; success/return paths are fixed constants.
 - Canonical URLs use `NEXT_PUBLIC_SITE_URL`, not the request Host header.
 
@@ -353,7 +353,7 @@ Rate-limit keys use hashed IPs, not raw IPs. Cleanup runs daily.
 
 ## 13. AI Security
 
-- Anthropic API called only from the server.
+- DeepSeek API called only from the server.
 - API key never in `NEXT_PUBLIC_*`, client bundles, logs, or error messages.
 - System prompt defines task and constraints; user free text is serialized as data, not concatenated into instructions.
 - Context includes only published destinations/packages.
@@ -371,7 +371,7 @@ Rate-limit keys use hashed IPs, not raw IPs. Cleanup runs daily.
 - Quote creation rechecks the stored AI session, revalidates contact/travel data, applies Turnstile and rate limits, and creates a custom booking.
 - The exchange-rate provider URL is server-configured and validated; cron calls require the `CRON_SECRET` bearer header. Currency cookies are limited to the four allowed codes.
 - Currency is a display preference only; bookings and stored prices remain LKR or explicitly recorded quoted currency.
-- Privacy policy discloses that trip preferences are sent to Anthropic and that generated PDFs/session data are retained temporarily.
+- Privacy policy discloses that trip preferences are sent to DeepSeek and that generated PDFs/session data are retained temporarily.
 
 ## 14. Email Security
 
@@ -499,7 +499,7 @@ Content-Security-Policy: nonce-based, strict-dynamic, explicit connect/img/frame
 
 ### Privacy
 
-- Privacy policy discloses data collected, processors (Anthropic, Resend, hosting, Cloudflare), retention, and deletion request process.
+- Privacy policy discloses data collected, processors (DeepSeek, Resend, hosting, Cloudflare), retention, and deletion request process.
 - Data minimisation: no unnecessary account data, no analytics cookies in v1.
 - Essential cookies only: admin session, CSRF, currency preference.
 - Photo consent and rights confirmation required.

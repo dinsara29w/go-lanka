@@ -76,8 +76,10 @@ type VehicleRow = {
   name: string;
   min_pax: number;
   max_pax: number;
+  mode: "driver" | "self_drive";
   per_km_rate_lkr: string;
-  driver_daily_rate_lkr: string;
+  daily_rate_lkr: string;
+  included_km_per_day: number;
 };
 
 async function loadQuote(id: string): Promise<QuoteRow | null> {
@@ -138,7 +140,8 @@ export async function saveQuoteReviewAction(formData: FormData): Promise<void> {
 
   const vehicleResult = parsed.data.vehicleId
     ? await pool.query<VehicleRow>(
-        `SELECT id, name, min_pax, max_pax, per_km_rate_lkr, driver_daily_rate_lkr
+        `SELECT id, name, mode, min_pax, max_pax, per_km_rate_lkr, daily_rate_lkr,
+                included_km_per_day
          FROM vehicles WHERE id = $1`,
         [parsed.data.vehicleId],
       )
@@ -151,26 +154,30 @@ export async function saveQuoteReviewAction(formData: FormData): Promise<void> {
         id: vehicleRow.id,
         name: vehicleRow.name,
         minPax: vehicleRow.min_pax,
+        mode: vehicleRow.mode,
         maxPax: vehicleRow.max_pax,
         perKmRateLkr: Number(vehicleRow.per_km_rate_lkr),
-        driverDailyRateLkr: Number(vehicleRow.driver_daily_rate_lkr),
+        dailyRateLkr: Number(vehicleRow.daily_rate_lkr),
+        includedKmPerDay: vehicleRow.included_km_per_day,
       }
     : null;
+  // A chosen vehicle decides driver vs self-drive; without one, the checkbox does.
+  const selfDrive = vehicle ? vehicle.mode === "self_drive" : parsed.data.selfDrive;
 
   const breakdown = computeQuote({
     package: {
       id: packageRow.id,
       title: packageRow.title,
       slug: packageRow.slug,
-      tier: packageRow.tier,
-      dailyRateLkr: Number(packageRow.daily_rate_lkr),
     },
     rates,
+    budget: quote.budget,
     board: parsed.data.board,
     days: quote.days,
+    nights: quote.nights,
     adults: quote.adults,
     children: quote.children,
-    selfDrive: parsed.data.selfDrive,
+    mode: selfDrive ? "self_drive" : "driver",
     distanceKm: parsed.data.distanceKm,
     vehicle,
   });
@@ -192,7 +199,7 @@ export async function saveQuoteReviewAction(formData: FormData): Promise<void> {
       vehicle?.id ?? null,
       vehicle?.name ?? null,
       parsed.data.board,
-      parsed.data.selfDrive,
+      selfDrive,
       parsed.data.distanceKm,
       JSON.stringify(breakdown),
       breakdown.totalLkr,

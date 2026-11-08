@@ -10,6 +10,8 @@ export const tourBuilderRequestSchema = z
     budget: z.enum(BUDGET_TIERS),
     board: z.enum(BOARD_TYPES),
     selfDrive: z.boolean(),
+    // The vehicle the traveller picked; null lets the team choose.
+    vehicleId: z.string().uuid().nullable().optional(),
     days: z.number().int().min(1).max(21),
     nights: z.number().int().min(0).max(21),
     adults: z.number().int().min(1).max(10),

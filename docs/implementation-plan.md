@@ -53,7 +53,7 @@ Next.js application (public site + admin + custom API)
   |-- PostgreSQL 17, native service on the host, no public port
   |-- Local media storage (public media + private submissions)
   |-- Resend (outbound email)
-  |-- Anthropic API (outbound AI)
+  |-- DeepSeek API (outbound AI)
   |-- Exchange-rate API (outbound)
 
 Host systemd timers
@@ -105,7 +105,7 @@ A managed database or platform-as-a-service is intentionally avoided. The existi
 | Images         | `sharp` re-encoding, metadata stripping, WebP conversion          |
 | Email          | Resend                                                            |
 | Bot protection | Cloudflare Turnstile + honeypot + rate limits                     |
-| AI             | Anthropic Claude API via server-only SDK                          |
+| AI             | DeepSeek chat completions API via server-only `fetch`             |
 | Reverse proxy  | Caddy                                                             |
 | Deployment     | Contabo VPS; hardened app container or systemd service (P6)       |
 | Database host  | Native PostgreSQL 17 on the VPS; native Windows service locally   |
@@ -421,7 +421,7 @@ Summary:
 2. Exchange-rate provider adapter, daily cron, last-known fallback, response validation.
 3. Add structured hotel/meal/activity data to the admin model after client confirms the exact fields (see `docs/ai-tour-builder.md`).
 4. Tour builder quiz and SSE generation route.
-5. Server-only Anthropic prompt with published destinations, hotels, meals, activities, packages and pricing context; input caps; no tools; output schema; one retry; fallback.
+5. Server-only DeepSeek prompt with published destinations, hotels, meals, activities, packages and pricing context; input caps; no tools; output schema; one retry; fallback.
 6. Server-side price range from admin pricing data; ignore model pricing.
 7. Server-side PDF generation with a designed itinerary layout, branded cover, day cards, map/pins where feasible, price range, disclaimer and expiry-limited download.
 8. Quote request creates custom booking with itinerary JSON and links the generated PDF.
@@ -430,7 +430,7 @@ Summary:
 
 **Gate:** API key absent from client bundle; malicious output cannot produce executable/unknown links; PDFs contain no admin-only data; download links expire; quotas enforced; provider outage degrades safely.
 
-**Blockers:** exchange-rate provider, AI pricing formula, Anthropic budget, hotel/meal data model, PDF branding and required sections.
+**Blockers:** exchange-rate provider, AI pricing formula, DeepSeek budget, hotel/meal data model, PDF branding and required sections.
 
 ### P6 — Launch
 
@@ -476,7 +476,6 @@ Summary:
 - `sharp` — image processing
 - `file-type` — magic-byte validation
 - `resend` — transactional email
-- `@anthropic-ai/sdk` — Anthropic API
 - `pino` — structured logging
 - `server-only` — server/client boundary protection
 
@@ -507,8 +506,9 @@ MIGRATION_DATABASE_URL=        # migrations/seeds only, never runtime
 IP_HASH_SECRET=
 MFA_ENCRYPTION_KEY=            # 32-byte base64 key
 
-ANTHROPIC_API_KEY=
-ANTHROPIC_MODEL=claude-sonnet-5-5
+DEEPSEEK_API_KEY=
+DEEPSEEK_MODEL=deepseek-chat
+DEEPSEEK_BASE_URL=https://api.deepseek.com
 RESEND_API_KEY=
 EMAIL_FROM=
 ADMIN_NOTIFICATION_EMAIL=
@@ -536,7 +536,7 @@ Only `NEXT_PUBLIC_*` values may reach the browser. Database URLs, MFA key, scann
 | Review content and verified travel facts     | P4/P6     |
 | WhatsApp number and contact email            | P1        |
 | Resend domain verification                   | P3/P6     |
-| Anthropic API key and production budget      | P5/P6     |
+| DeepSeek API key and production budget       | P5/P6     |
 | AI price-range formula sign-off              | P5        |
 | Hotel and meal data model                    | P5        |
 | PDF branding and required sections           | P5        |
@@ -555,7 +555,9 @@ Only `NEXT_PUBLIC_*` values may reach the browser. Database URLs, MFA key, scann
 6. **Dependencies:** approved; production dependency audit is clean.
 7. **PDF generation:** server-side `pdf-lib` with a neutral template until brand assets are supplied.
 8. **Exchange rates:** free `open.er-api.com` provider, stored rates with last-known fallback.
-9. **AI data scope:** current published destinations/packages/itinerary accommodation and meals; structured hotel/meal catalogues remain a later extension.
+9. **AI provider:** DeepSeek (`deepseek-chat`) replaces Anthropic, at the client's request (2026-11-08). Called with plain `fetch`; no SDK dependency.
+10. **Quote pricing:** client rate card in `/admin/rates` (hotel tier per person per night, meal-plan percentage, chosen vehicle). See [ai-tour-builder.md](./ai-tour-builder.md).
+11. **AI data scope:** current published destinations/packages/itinerary accommodation and meals; structured hotel/meal catalogues remain a later extension.
 
 ## 17. Phase Status and Next Step
 
@@ -573,6 +575,6 @@ P0–P6 implementation is complete. P6 code and documentation deliverables are i
 - Production build works without local secrets
 - Production dependency audit reports 0 vulnerabilities
 
-Live AI generation has not been exercised because `ANTHROPIC_API_KEY` is not configured locally. The fallback path is in place; the API key and real hotel/meal data remain launch inputs.
+Live AI generation was exercised against DeepSeek on 2026-11-08. A production DeepSeek key and real hotel/meal data remain launch inputs.
 
 Remaining launch work is operational and client-dependent: provision the VPS/database/Cloudflare/Resend/Turnstile production values, run the restore drill, complete the external penetration review, and replace placeholder brand, content, photos and legal copy. See [deployment.md](./deployment.md) and [handover.md](./handover.md).

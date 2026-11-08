@@ -21,7 +21,7 @@
 4. If a secret is exposed:
    - rotate the affected key immediately
    - remove it from deployment history and restart services
-   - check provider usage (Anthropic, Resend, exchange-rate, backup storage)
+   - check provider usage (DeepSeek, Resend, exchange-rate, backup storage)
 5. If data integrity is uncertain, stop writes and take a fresh backup before recovery.
 6. If the application is unavailable or unsafe, put it behind maintenance/Cloudflare and notify the client.
 

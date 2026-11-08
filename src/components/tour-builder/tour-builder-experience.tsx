@@ -9,13 +9,18 @@ import { cn } from "cn";
 import { TurnstileWidget } from "@/components/security/turnstile-widget";
 import { TourMapPins } from "@/components/tour-builder/tour-map-pins";
 import { strings } from "@/content/strings";
+import { Price } from "@/components/currency/currency-provider";
 import {
   BOARD_LABELS,
   BOARD_TYPES,
   BUDGET_LABELS,
   BUDGET_TIERS,
+  VEHICLE_MODE_LABELS,
+  VEHICLE_MODES,
   type BoardType,
   type BudgetTier,
+  type PublicVehicleOption,
+  type VehicleMode,
 } from "@/lib/tour-builder";
 import type { GeneratedItinerary } from "@/lib/validation/tour-builder";
 
@@ -53,24 +58,38 @@ function monthOptions() {
 export function TourBuilderExperience({
   destinations,
   siteKey,
+  vehicles = [],
+  tierRatesLkr,
   initialDays = 7,
   initialAdults = 2,
 }: {
   destinations: DestinationOption[];
   siteKey: string | null;
+  vehicles?: PublicVehicleOption[];
+  tierRatesLkr?: Record<BudgetTier, number>;
   initialDays?: number;
   initialAdults?: number;
 }) {
   const [locations, setLocations] = useState<string[]>([]);
   const [budget, setBudget] = useState<BudgetTier>("star");
-  const [board, setBoard] = useState<BoardType>("half_board");
+  const [board, setBoard] = useState<BoardType>("bed_breakfast");
   const [selfDrive, setSelfDrive] = useState(false);
+  const [pickedVehicleId, setPickedVehicleId] = useState<string | null>(null);
   const [days, setDays] = useState(initialDays);
   const [nights, setNights] = useState(Math.max(initialDays - 1, 0));
   const [travelMonth, setTravelMonth] = useState(new Date().getUTCMonth() + 1);
   const [adults, setAdults] = useState(initialAdults);
   const [children, setChildren] = useState(0);
   const [notes, setNotes] = useState("");
+  const mode: VehicleMode = selfDrive ? "self_drive" : "driver";
+  const fittingVehicles = vehicles
+    .filter((vehicle) => vehicle.mode === mode && vehicle.maxPax >= adults + children)
+    .sort((a, b) => a.maxPax - b.maxPax);
+  // Keep the traveller's pick while it still fits; otherwise default to the smallest that does.
+  const vehicleId =
+    fittingVehicles.find((vehicle) => vehicle.id === pickedVehicleId)?.id ??
+    fittingVehicles[0]?.id ??
+    null;
   const [token, setToken] = useState<string | null>(null);
   const [widgetKey, setWidgetKey] = useState(0);
   const [building, setBuilding] = useState(false);
@@ -124,6 +143,7 @@ export function TourBuilderExperience({
           budget,
           board,
           selfDrive,
+          vehicleId,
           days,
           nights,
           travelMonth,
@@ -348,7 +368,7 @@ export function TourBuilderExperience({
 
             <fieldset>
               <legend className={labelClass}>{strings.tourBuilder.budget}</legend>
-              <div className="mt-2 flex flex-wrap gap-2.5">
+              <div className="mt-2 grid gap-2.5 sm:grid-cols-3">
                 {BUDGET_TIERS.map((tier) => (
                   <button
                     key={tier}
@@ -356,21 +376,29 @@ export function TourBuilderExperience({
                     aria-pressed={budget === tier}
                     onClick={() => setBudget(tier)}
                     className={cn(
-                      "inline-flex h-10 items-center rounded-full px-5 text-sm font-semibold transition-colors",
+                      "flex flex-col items-start rounded-xl border px-4 py-2.5 text-left transition-colors",
                       budget === tier
-                        ? "bg-brand text-white"
-                        : "border border-line bg-white text-ink hover:border-brand hover:text-brand",
+                        ? "border-brand bg-brand text-white"
+                        : "border-line bg-white text-ink hover:border-brand",
                     )}
                   >
-                    {BUDGET_LABELS[tier]}
+                    <span className="text-sm font-semibold">{BUDGET_LABELS[tier]}</span>
+                    {tierRatesLkr ? (
+                      <span
+                        className={cn("text-xs", budget === tier ? "text-white/85" : "text-stone")}
+                      >
+                        <Price amountLkr={tierRatesLkr[tier]} /> {strings.tourBuilder.perNight}
+                      </span>
+                    ) : null}
                   </button>
                 ))}
               </div>
+              <p className="mt-1.5 text-xs text-stone">{strings.tourBuilder.hotelRateNote}</p>
             </fieldset>
 
             <fieldset>
               <legend className={labelClass}>{strings.tourBuilder.board}</legend>
-              <div className="mt-2 grid gap-2.5 sm:grid-cols-3">
+              <div className="mt-2 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
                 {BOARD_TYPES.map((option) => (
                   <label
                     key={option}
@@ -394,20 +422,72 @@ export function TourBuilderExperience({
               </div>
             </fieldset>
 
-            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-line bg-page p-3.5 text-sm">
-              <input
-                type="checkbox"
-                className="mt-0.5 size-4 accent-brand"
-                checked={selfDrive}
-                onChange={(event) => setSelfDrive(event.target.checked)}
-              />
-              <span>
-                <span className="font-semibold text-ink">{strings.tourBuilder.selfDrive}</span>
-                <span className="mt-1 block text-xs leading-5 text-stone">
-                  {strings.tourBuilder.selfDriveHint}
-                </span>
-              </span>
-            </label>
+            <fieldset>
+              <legend className={labelClass}>{strings.tourBuilder.gettingAround}</legend>
+              <div className="mt-2 flex flex-wrap gap-2.5">
+                {VEHICLE_MODES.map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    aria-pressed={mode === option}
+                    onClick={() => setSelfDrive(option === "self_drive")}
+                    className={cn(
+                      "inline-flex h-10 items-center rounded-full px-5 text-sm font-semibold transition-colors",
+                      mode === option
+                        ? "bg-brand text-white"
+                        : "border border-line bg-white text-ink hover:border-brand hover:text-brand",
+                    )}
+                  >
+                    {VEHICLE_MODE_LABELS[option]}
+                  </button>
+                ))}
+              </div>
+              {fittingVehicles.length > 0 ? (
+                <div
+                  role="radiogroup"
+                  aria-label={strings.tourBuilder.vehicle}
+                  className="mt-3 grid gap-2.5 sm:grid-cols-2"
+                >
+                  {fittingVehicles.map((vehicle) => (
+                    <label
+                      key={vehicle.id}
+                      className={cn(
+                        "flex cursor-pointer items-start gap-2.5 rounded-xl border px-3.5 py-3 text-sm transition-colors",
+                        vehicleId === vehicle.id
+                          ? "border-brand bg-tint"
+                          : "border-line bg-white hover:border-brand",
+                      )}
+                    >
+                      <input
+                        type="radio"
+                        name="vehicle"
+                        className="mt-1 accent-brand"
+                        checked={vehicleId === vehicle.id}
+                        onChange={() => setPickedVehicleId(vehicle.id)}
+                      />
+                      <span>
+                        <span className="block font-semibold text-ink">
+                          {vehicle.name}{" "}
+                          <span className="font-normal text-stone">
+                            · {strings.tourBuilder.seats.replace("{n}", String(vehicle.maxPax))}
+                          </span>
+                        </span>
+                        <span className="mt-0.5 block text-xs text-stone">
+                          <VehicleRateText vehicle={vehicle} />
+                        </span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-3 rounded-xl border border-dashed border-line bg-page p-3.5 text-sm text-stone">
+                  {strings.tourBuilder.noVehicleFits}
+                </p>
+              )}
+              <p className="mt-1.5 text-xs text-stone">
+                {selfDrive ? strings.tourBuilder.selfDriveHint : strings.tourBuilder.driverHint}
+              </p>
+            </fieldset>
 
             <div>
               <label htmlFor="builder-notes" className={labelClass}>
@@ -516,6 +596,34 @@ export function TourBuilderExperience({
         </div>
       </aside>
     </div>
+  );
+}
+
+function VehicleRateText({ vehicle }: { vehicle: PublicVehicleOption }) {
+  if (vehicle.mode === "self_drive") {
+    return (
+      <>
+        <Price amountLkr={vehicle.dailyRateLkr} /> {strings.tourBuilder.perDay} ·{" "}
+        {strings.tourBuilder.kmIncluded.replace("{km}", String(vehicle.includedKmPerDay))}
+        {vehicle.perKmRateLkr > 0 ? (
+          <>
+            {" "}
+            · <Price amountLkr={vehicle.perKmRateLkr} /> {strings.tourBuilder.perExtraKm}
+          </>
+        ) : null}
+      </>
+    );
+  }
+  return (
+    <>
+      <Price amountLkr={vehicle.perKmRateLkr} /> {strings.tourBuilder.perKm}
+      {vehicle.dailyRateLkr > 0 ? (
+        <>
+          {" "}
+          + <Price amountLkr={vehicle.dailyRateLkr} /> {strings.tourBuilder.perDay}
+        </>
+      ) : null}
+    </>
   );
 }
 

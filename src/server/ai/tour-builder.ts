@@ -1,7 +1,6 @@
 import "server-only";
 
-import Anthropic from "@anthropic-ai/sdk";
-import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
+import { z } from "zod";
 
 import {
   generatedItinerarySchema,
@@ -9,7 +8,7 @@ import {
   type TourBuilderRequest,
 } from "@/lib/validation/tour-builder";
 import { getTourBuilderContext, type TourBuilderContext } from "@/server/ai/context";
-import { computeQuote, selectVehicle } from "@/server/ai/pricing";
+import { computeQuote, vehiclesForParty } from "@/server/ai/pricing";
 import { generateBookingReference } from "@/server/bookings/reference";
 import { getPublicPool } from "@/server/db/pools";
 import { getServerEnv } from "@/server/env";
@@ -55,7 +54,8 @@ Requirements:
 - travel_km is the estimated road driving distance to reach that day's destination from the previous day's stop. Use the supplied latitude/longitude as a guide, allow for Sri Lankan road conditions, and use 0 when there is no travel. Do not count a return journey on the final day unless the itinerary actually includes it.
 - Do not include prices; the application calculates the quotation separately.
 - Keep each day realistic. Avoid excessive travel.
-- Return JSON only in the requested schema.`;
+- Return a single JSON object only, with no prose or markdown, matching this JSON schema:
+${JSON.stringify(z.toJSONSchema(generatedItinerarySchema))}`;
 
 function validateOutput(
   itinerary: GeneratedItinerary,
@@ -99,9 +99,8 @@ async function callModel(
   context: TourBuilderContext,
 ): Promise<GeneratedItinerary> {
   const env = getServerEnv();
-  if (!env.ANTHROPIC_API_KEY) throw new TourBuilderError("unavailable");
+  if (!env.DEEPSEEK_API_KEY) throw new TourBuilderError("unavailable");
 
-  const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
   const payload = {
     request: {
       locations: quiz.locations,
@@ -139,21 +138,52 @@ async function callModel(
     allowedActivities: context.activities,
   };
 
-  const stream = client.messages.stream({
-    model: env.ANTHROPIC_MODEL,
-    max_tokens: 12_000,
-    system: SYSTEM_PROMPT,
-    messages: [{ role: "user", content: JSON.stringify(payload) }],
-    output_config: {
-      format: zodOutputFormat(generatedItinerarySchema),
+  // DeepSeek exposes an OpenAI-compatible chat completions API with a JSON output mode.
+  const response = await fetch(`${env.DEEPSEEK_BASE_URL.replace(/\/$/, "")}/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${env.DEEPSEEK_API_KEY}`,
     },
+    body: JSON.stringify({
+      model: env.DEEPSEEK_MODEL,
+      max_tokens: 8_000,
+      temperature: 0.4,
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: `DATA:\n${JSON.stringify(payload)}` },
+      ],
+    }),
+    signal: AbortSignal.timeout(120_000),
   });
 
-  const message = await stream.finalMessage();
-  if (message.stop_reason === "refusal") throw new TourBuilderError("refused");
-  if (message.stop_reason === "max_tokens") throw new TourBuilderError("invalid_output");
+  if (!response.ok) {
+    getLogger().warn(
+      { event: "tour_builder_model_http_error", status: response.status },
+      "tour_builder_model_http_error",
+    );
+    if (response.status === 401 || response.status === 402 || response.status === 403) {
+      throw new TourBuilderError("unavailable");
+    }
+    throw new TourBuilderError("invalid_output");
+  }
 
-  const parsed = generatedItinerarySchema.safeParse(message.parsed_output);
+  const completion = (await response.json().catch(() => null)) as {
+    choices?: { finish_reason?: string; message?: { content?: string | null } }[];
+  } | null;
+  const choice = completion?.choices?.[0];
+  if (choice?.finish_reason === "content_filter") throw new TourBuilderError("refused");
+  if (choice?.finish_reason === "length") throw new TourBuilderError("invalid_output");
+
+  let json: unknown;
+  try {
+    json = JSON.parse(choice?.message?.content ?? "");
+  } catch {
+    throw new TourBuilderError("invalid_output");
+  }
+
+  const parsed = generatedItinerarySchema.safeParse(json);
   if (!parsed.success) throw new TourBuilderError("invalid_output");
   return parsed.data;
 }
@@ -207,26 +237,34 @@ export async function generateTourBuilderResult(input: {
   if (!selectedPackage) throw new TourBuilderError("invalid_output");
 
   const rates = await getTourBuilderRates();
+  const mode = input.quiz.selfDrive ? "self_drive" : "driver";
   const partySize = input.quiz.adults + input.quiz.children;
-  const { vehicle, capacityShortfall } = selectVehicle(rates.vehicles, partySize);
+  // Use the traveller's vehicle when it is active, matches driver/self-drive and seats the
+  // party; otherwise fall back to the smallest vehicle that fits (or none, for the team).
+  const chosen = input.quiz.vehicleId
+    ? rates.vehicles.find((item) => item.id === input.quiz.vehicleId)
+    : undefined;
+  const vehicle =
+    chosen && chosen.mode === mode && chosen.maxPax >= partySize
+      ? chosen
+      : (vehiclesForParty(rates.vehicles, mode, partySize)[0] ?? null);
   const distanceKm = itinerary.days.reduce((sum, day) => sum + day.travel_km, 0);
   const breakdown = computeQuote({
     package: {
       id: selectedPackage.id,
       title: selectedPackage.title,
       slug: selectedPackage.slug,
-      tier: selectedPackage.tier,
-      dailyRateLkr: selectedPackage.dailyRateLkr,
     },
     rates,
+    budget: input.quiz.budget,
     board: input.quiz.board,
     days: input.quiz.days,
+    nights: input.quiz.nights,
     adults: input.quiz.adults,
     children: input.quiz.children,
-    selfDrive: input.quiz.selfDrive,
+    mode,
     distanceKm,
     vehicle,
-    capacityShortfall,
   });
 
   input.onProgress?.("calculating your quotation");
@@ -237,6 +275,7 @@ export async function generateTourBuilderResult(input: {
     budget: input.quiz.budget,
     board: input.quiz.board,
     selfDrive: input.quiz.selfDrive,
+    vehicleId: vehicle?.id ?? null,
     days: input.quiz.days,
     nights: input.quiz.nights,
     adults: input.quiz.adults,

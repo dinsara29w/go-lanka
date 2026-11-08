@@ -25,7 +25,6 @@
     "audit:prod": "npm audit --omit=dev"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "1.1.0",
     "@hookform/resolvers": "5.9.2",
     "@node-rs/argon2": "2.2.2",
     "class-variance-authority": "0.7.1",

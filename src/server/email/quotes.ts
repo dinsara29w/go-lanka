@@ -4,7 +4,7 @@ import { formatLkr } from "@/lib/currency";
 import { SITE_NAME, getSiteUrl } from "@/lib/site";
 import { BOARD_LABELS } from "@/lib/tour-builder";
 import type { BoardType } from "@/lib/validation/tour-builder";
-import type { QuoteBreakdown } from "@/server/ai/pricing";
+import { describeRide, describeStay, type QuoteBreakdown } from "@/server/ai/pricing";
 import { escapeHtml } from "@/server/email/templates";
 
 export function buildAdminQuoteNotification(input: {
@@ -74,17 +74,8 @@ export function buildCustomerQuoteEmail(input: {
     : "";
   const pdfText = input.pdfUrl ? ["", `Download your itinerary: ${input.pdfUrl}`] : [];
 
-  const packageLine =
-    `${input.breakdown.package.title} — ${formatLkr(input.breakdown.package.adjustedDailyRateLkr)} ` +
-    `per adult per day × ${input.breakdown.package.days} days × ` +
-    `${input.breakdown.package.travellerUnits} traveller units`;
-  const rideLine = input.vehicleName
-    ? `${input.vehicleName} — ${input.breakdown.ride.distanceKm} km × ` +
-      `${formatLkr(input.breakdown.ride.perKmRateLkr)} per km` +
-      (input.breakdown.ride.driverLkr > 0
-        ? ` + driver ${input.breakdown.ride.driverDays} days × ${formatLkr(input.breakdown.ride.driverDailyRateLkr)}`
-        : " (self-drive, no driver)")
-    : "Transport to be confirmed by the team";
+  const packageLine = describeStay(input.breakdown);
+  const rideLine = describeRide(input.breakdown);
 
   return {
     subject: `Your Sri Lanka itinerary and quote — ${input.reference}`,

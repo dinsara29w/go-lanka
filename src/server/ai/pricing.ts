@@ -1,9 +1,19 @@
 import "server-only";
 
-import type { BoardType, BudgetTier } from "@/lib/validation/tour-builder";
+import { formatLkr } from "@/lib/currency";
+import {
+  BOARD_LABELS,
+  BUDGET_LABELS,
+  VEHICLE_MODE_LABELS,
+  type BoardType,
+  type BudgetTier,
+  type VehicleMode,
+} from "@/lib/tour-builder";
 
 export type TourBuilderRates = {
   adminWhatsAppNumber: string | null;
+  /** Hotel rate per person per night, bed and breakfast, by budget tier. */
+  tierRatesLkr: Record<BudgetTier, number>;
   roomOnlyPercent: number;
   halfBoardPercent: number;
   fullBoardPercent: number;
@@ -14,44 +24,42 @@ export type TourBuilderRates = {
 export type VehicleRate = {
   id: string;
   name: string;
+  mode: VehicleMode;
   minPax: number;
   maxPax: number;
+  /** Driver: charged for every km. Self-drive: charged for km above the daily allowance. */
   perKmRateLkr: number;
-  driverDailyRateLkr: number;
-};
-
-export type QuotePackage = {
-  id: string;
-  title: string;
-  slug: string;
-  tier: BudgetTier;
+  /** Driver: optional driver allowance per day. Self-drive: rental per day. */
   dailyRateLkr: number;
+  /** Self-drive only: km included in each day's rental. */
+  includedKmPerDay: number;
 };
 
 export type QuoteBreakdown = {
-  package: {
-    id: string;
-    title: string;
-    slug: string;
+  /** The published package the AI used as the route basis (not priced). */
+  package: { id: string; title: string; slug: string };
+  stay: {
     tier: BudgetTier;
-    dailyRateLkr: number;
-    days: number;
+    ratePerPersonNightLkr: number;
+    nights: number;
     travellerUnits: number;
     board: BoardType;
     boardPercent: number;
-    adjustedDailyRateLkr: number;
+    baseLkr: number;
     subtotalLkr: number;
   };
   ride: {
     vehicleId: string | null;
     vehicleName: string | null;
-    perKmRateLkr: number;
+    mode: VehicleMode;
     distanceKm: number;
+    days: number;
+    dailyRateLkr: number;
+    dailyLkr: number;
+    includedKm: number;
+    chargedKm: number;
+    perKmRateLkr: number;
     distanceLkr: number;
-    selfDrive: boolean;
-    driverDays: number;
-    driverDailyRateLkr: number;
-    driverLkr: number;
     subtotalLkr: number;
   };
   totalLkr: number;
@@ -66,95 +74,143 @@ function roundTotal(value: number): number {
   return Math.max(0, Math.round(value / 100) * 100);
 }
 
+/** Bed and breakfast is the base rate; the other boards adjust it by an admin-set percentage. */
 export function boardPercentFor(board: BoardType, rates: TourBuilderRates): number {
   if (board === "room_only") return rates.roomOnlyPercent;
+  if (board === "half_board") return rates.halfBoardPercent;
   if (board === "full_board") return rates.fullBoardPercent;
-  return rates.halfBoardPercent;
+  return 0;
 }
 
-export function selectVehicle(
+/** Vehicles of the requested mode that seat the whole party, smallest first. */
+export function vehiclesForParty(
   vehicles: VehicleRate[],
+  mode: VehicleMode,
   partySize: number,
-): { vehicle: VehicleRate | null; capacityShortfall: boolean } {
-  const sorted = [...vehicles].sort((a, b) => a.maxPax - b.maxPax);
-  const fitting = sorted.filter((vehicle) => vehicle.maxPax >= partySize);
-  if (fitting.length === 0) {
-    const largest = sorted.at(-1) ?? null;
-    return { vehicle: largest, capacityShortfall: largest !== null };
-  }
-  const inRange = fitting.find((vehicle) => vehicle.minPax <= partySize);
-  return { vehicle: inRange ?? fitting[0] ?? null, capacityShortfall: false };
+): VehicleRate[] {
+  return vehicles
+    .filter((vehicle) => vehicle.mode === mode && vehicle.maxPax >= partySize)
+    .sort((a, b) => a.maxPax - b.maxPax);
 }
 
 export function computeQuote(input: {
-  package: QuotePackage;
+  package: { id: string; title: string; slug: string };
   rates: TourBuilderRates;
+  budget: BudgetTier;
   board: BoardType;
   days: number;
+  nights: number;
   adults: number;
   children: number;
-  selfDrive: boolean;
+  mode: VehicleMode;
   distanceKm: number;
   vehicle: VehicleRate | null;
-  capacityShortfall?: boolean;
 }): QuoteBreakdown {
   const notes: string[] = [];
-  const boardPercent = boardPercentFor(input.board, input.rates);
+  const partySize = input.adults + input.children;
+
+  // Stay: rate per person per night (B&B), children at the child rate, then the board adjustment.
+  const ratePerPersonNightLkr = input.rates.tierRatesLkr[input.budget];
   const travellerUnits = input.adults + (input.children * input.rates.childRatePercent) / 100;
-  const adjustedDailyRateLkr = Math.max(
-    0,
-    roundMoney(input.package.dailyRateLkr * (1 + boardPercent / 100)),
-  );
-  const packageSubtotal = roundMoney(adjustedDailyRateLkr * input.days * travellerUnits);
+  const boardPercent = boardPercentFor(input.board, input.rates);
+  const baseLkr = roundMoney(ratePerPersonNightLkr * input.nights * travellerUnits);
+  const staySubtotal = Math.max(0, roundMoney(baseLkr * (1 + boardPercent / 100)));
 
-  const perKmRateLkr = input.vehicle?.perKmRateLkr ?? 0;
-  const distanceLkr = roundMoney(perKmRateLkr * input.distanceKm);
-  const driverDailyRateLkr = input.vehicle?.driverDailyRateLkr ?? 0;
-  const driverDays = input.selfDrive ? 0 : input.days;
-  const driverLkr = roundMoney(driverDailyRateLkr * driverDays);
-  const rideSubtotal = roundMoney(distanceLkr + driverLkr);
+  // Ride.
+  const vehicle = input.vehicle;
+  const days = input.days;
+  const dailyRateLkr = vehicle?.dailyRateLkr ?? 0;
+  const dailyLkr = roundMoney(dailyRateLkr * days);
+  const includedKm = input.mode === "self_drive" ? (vehicle?.includedKmPerDay ?? 0) * days : 0;
+  const chargedKm = Math.max(0, roundMoney(input.distanceKm - includedKm));
+  const perKmRateLkr = vehicle?.perKmRateLkr ?? 0;
+  const distanceLkr = roundMoney(perKmRateLkr * chargedKm);
+  const rideSubtotal = roundMoney(dailyLkr + distanceLkr);
 
-  if (!input.vehicle) {
-    notes.push("No active vehicle matches this party size. Add a vehicle rate.");
-  } else if (input.capacityShortfall) {
+  if (!vehicle) {
     notes.push(
-      `The largest vehicle (${input.vehicle.name}) seats ${input.vehicle.maxPax}; confirm transport for ${input.adults + input.children} travellers.`,
+      `No vehicle was selected for ${partySize} travellers. The team will confirm transport.`,
+    );
+  } else if (vehicle.maxPax < partySize) {
+    notes.push(
+      `${vehicle.name} seats ${vehicle.maxPax}; the team will confirm transport for ${partySize} travellers.`,
     );
   }
-  if (input.selfDrive) {
+  if (input.mode === "self_drive") {
     notes.push("Self-drive: vehicle supplied without a driver.");
+    if (vehicle && chargedKm > 0 && perKmRateLkr === 0) {
+      notes.push(
+        `${Math.round(chargedKm)} km above the daily allowance. The team will confirm the extra-km charge.`,
+      );
+    }
   }
   if (input.children > 0) {
-    notes.push(`Children are charged at ${input.rates.childRatePercent}% of the adult rate.`);
+    notes.push(`Children are charged at ${input.rates.childRatePercent}% of the adult hotel rate.`);
+  }
+  if (input.nights === 0) {
+    notes.push("No hotel nights were requested.");
   }
 
   return {
-    package: {
-      id: input.package.id,
-      title: input.package.title,
-      slug: input.package.slug,
-      tier: input.package.tier,
-      dailyRateLkr: roundMoney(input.package.dailyRateLkr),
-      days: input.days,
+    package: input.package,
+    stay: {
+      tier: input.budget,
+      ratePerPersonNightLkr: roundMoney(ratePerPersonNightLkr),
+      nights: input.nights,
       travellerUnits: roundMoney(travellerUnits),
       board: input.board,
       boardPercent,
-      adjustedDailyRateLkr,
-      subtotalLkr: packageSubtotal,
+      baseLkr,
+      subtotalLkr: staySubtotal,
     },
     ride: {
-      vehicleId: input.vehicle?.id ?? null,
-      vehicleName: input.vehicle?.name ?? null,
-      perKmRateLkr: roundMoney(perKmRateLkr),
+      vehicleId: vehicle?.id ?? null,
+      vehicleName: vehicle?.name ?? null,
+      mode: input.mode,
       distanceKm: roundMoney(input.distanceKm),
+      days,
+      dailyRateLkr: roundMoney(dailyRateLkr),
+      dailyLkr,
+      includedKm,
+      chargedKm,
+      perKmRateLkr: roundMoney(perKmRateLkr),
       distanceLkr,
-      selfDrive: input.selfDrive,
-      driverDays,
-      driverDailyRateLkr: roundMoney(driverDailyRateLkr),
-      driverLkr,
       subtotalLkr: rideSubtotal,
     },
-    totalLkr: roundTotal(packageSubtotal + rideSubtotal),
+    totalLkr: roundTotal(staySubtotal + rideSubtotal),
     notes,
   };
+}
+
+/** One-line hotel summary for the PDF and quote email. */
+export function describeStay(breakdown: QuoteBreakdown): string {
+  const { stay } = breakdown;
+  const sign = stay.boardPercent > 0 ? "+" : "";
+  const board =
+    stay.boardPercent === 0
+      ? BOARD_LABELS[stay.board]
+      : `${BOARD_LABELS[stay.board]} ${sign}${stay.boardPercent}%`;
+  return (
+    `${BUDGET_LABELS[stay.tier]} hotels — ${formatLkr(stay.ratePerPersonNightLkr)} per person per night ` +
+    `× ${stay.nights} nights × ${stay.travellerUnits} traveller units, ${board}`
+  );
+}
+
+/** One-line transport summary for the PDF and quote email. */
+export function describeRide(breakdown: QuoteBreakdown): string {
+  const { ride } = breakdown;
+  if (!ride.vehicleName) return "To be confirmed by the team";
+  const parts: string[] = [];
+  if (ride.dailyLkr > 0) {
+    parts.push(`${ride.days} days × ${formatLkr(ride.dailyRateLkr)}`);
+  }
+  if (ride.mode === "self_drive") {
+    parts.push(`${ride.includedKm} km included`);
+    if (ride.distanceLkr > 0) {
+      parts.push(`${ride.chargedKm} extra km × ${formatLkr(ride.perKmRateLkr)}`);
+    }
+  } else {
+    parts.push(`${ride.chargedKm} km × ${formatLkr(ride.perKmRateLkr)}`);
+  }
+  return `${ride.vehicleName} (${VEHICLE_MODE_LABELS[ride.mode].toLowerCase()}) — ${parts.join(" + ")}`;
 }

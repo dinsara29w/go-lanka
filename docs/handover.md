@@ -22,6 +22,7 @@ The owner can invite additional admins from `/admin/team`. Every admin must comp
 | Moderate traveller photos                                 | `/admin/photos`             |
 | Edit visa/money/weather/safety/packing/transport guidance | `/admin/travel-info`        |
 | Update WhatsApp, contact details and social links         | `/admin/settings`           |
+| Hotel rates, meal-plan percentages and vehicles           | `/admin/rates`              |
 | Revoke sessions                                           | `/admin/sessions`           |
 | Review admin activity                                     | `/admin/audit` (owner only) |
 
@@ -62,7 +63,7 @@ At minimum rotate:
 - admin passwords and MFA secrets after suspected compromise
 - `IP_HASH_SECRET` and `MFA_ENCRYPTION_KEY` only with a planned re-encryption/migration procedure
 - database role passwords
-- `ANTHROPIC_API_KEY`, `RESEND_API_KEY`, `EXCHANGE_RATE_API_KEY`, `CRON_SECRET`
+- `DEEPSEEK_API_KEY`, `RESEND_API_KEY`, `EXCHANGE_RATE_API_KEY`, `CRON_SECRET`
 - Turnstile keys
 - backup storage credentials
 
@@ -72,7 +73,7 @@ Rotating `MFA_ENCRYPTION_KEY` without re-encrypting existing MFA secrets will lo
 
 - Structured hotel/meal catalogues are not yet modelled.
 - PDF branding is neutral.
-- Live AI requires an Anthropic key and budget.
+- Live AI requires a DeepSeek API key with credit.
 - No analytics provider is configured.
 - Single VPS, no high availability.
 - Legal/privacy text is not approved.
