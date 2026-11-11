@@ -38,6 +38,7 @@ export const strings = {
     destinations: "Destinations",
     privacyPolicy: "Privacy policy",
     termsAndConditions: "Terms and conditions",
+    photoCredits: "Photo credits",
     days: "days",
     journeys: "journeys",
     journey: "journey",

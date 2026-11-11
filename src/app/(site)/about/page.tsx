@@ -21,7 +21,7 @@ export default function AboutPage() {
       <PageBanner
         title={strings.about.heading}
         intro={strings.about.intro}
-        image={siteImages.pidurangala}
+        image={siteImages.sigiriyaRock}
         crumbs={[{ label: strings.nav.about }]}
       />
 
