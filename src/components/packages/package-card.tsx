@@ -88,9 +88,14 @@ export function PackageGrid({
       <div className="mx-auto max-w-2xl rounded-2xl border border-dashed border-line bg-white p-8 text-center">
         <h2 className="font-heading text-xl font-semibold text-ink">{emptyTitle}</h2>
         <p className="mt-2 text-sm leading-6 text-stone">{emptyBody}</p>
-        <Link href="/contact" className="btn-outline mt-5">
-          {strings.nav.contact}
-        </Link>
+        <div className="mt-5 flex flex-wrap justify-center gap-3">
+          <Link href="/tour-builder" className="btn-primary">
+            {strings.packages.emptyBuilder}
+          </Link>
+          <Link href="/contact" className="btn-outline">
+            {strings.nav.contact}
+          </Link>
+        </div>
       </div>
     );
   }

@@ -157,6 +157,13 @@ export async function getTourBuilderContext(): Promise<TourBuilderContext> {
   return {
     destinations,
     packages,
-    activities: [...new Set(packages.flatMap((item) => item.activities))].sort(),
+    // Activities the model may use: those on published packages plus each destination's highlights,
+    // so the builder still works before any package has been published.
+    activities: [
+      ...new Set([
+        ...packages.flatMap((item) => item.activities),
+        ...destinations.flatMap((item) => item.highlights),
+      ]),
+    ].sort(),
   };
 }

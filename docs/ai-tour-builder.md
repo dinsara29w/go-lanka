@@ -15,6 +15,19 @@
 - “Request this quote” creates a custom booking with the generated itinerary and sends customer/admin emails.
 - The PDF template uses neutral colours and standard fonts because brand assets are pending.
 
+## Using it, and what it needs
+
+**For visitors:** open **AI tour builder** in the top menu (or tap a place on the home page). Pick places, set days, budget, meal plan and vehicle, press **Build my itinerary**, then send the quote request.
+
+**For the site owner,** the builder only works when all of these are in place:
+
+1. **Places in the database.** `npm run db:migrate` adds the eight main places. More can be added in `/admin/destinations`. Published packages are optional.
+2. **An AI key.** Put `DEEPSEEK_API_KEY=...` in `.env.local` (locally) or the server settings (live), then restart.
+3. **The spam check.** Locally use Cloudflare's test keys (see `.env.example`); the live site needs real Turnstile keys.
+4. **Rates.** Hotel rates and vehicles in `/admin/rates` (added with sample values by the migrations).
+
+While the site runs on your computer, the tour builder page shows a "Setup checklist" if any of these is missing. Visitors never see it.
+
 ## Pricing (client rate card, November 2026)
 
 All values are edited in `/admin/rates`; the starting values come from the client.

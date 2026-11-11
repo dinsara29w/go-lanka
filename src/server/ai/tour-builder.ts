@@ -34,7 +34,7 @@ export type TourBuilderResult = {
   sessionId: string;
   reference: string;
   itinerary: GeneratedItinerary;
-  selectedPackage: { title: string; slug: string };
+  selectedPackage: { title: string; slug: string } | null;
   distanceKm: number;
   vehicleName: string | null;
 };
@@ -50,7 +50,7 @@ Requirements:
 - destination_slug must exactly match one of the supplied destination slugs.
 - activities must only use activities that appear in the supplied context.
 - overnight should use an accommodation name from the supplied package itinerary where possible; otherwise use "To be confirmed by the team".
-- selected_package_slug must be exactly one supplied package slug. Choose the package that best fits the selected locations AND the requested budget tier. Prefer a package whose tier matches; if none matches the locations, choose the closest tier.
+- selected_package_slug: if DATA.packages is not empty, use exactly one supplied package slug that best fits the selected locations AND the requested budget tier (prefer a matching tier). If DATA.packages is empty or no package fits, use null.
 - travel_km is the estimated road driving distance to reach that day's destination from the previous day's stop. Use the supplied latitude/longitude as a guide, allow for Sri Lankan road conditions, and use 0 when there is no travel. Do not count a return journey on the final day unless the itinerary actually includes it.
 - Do not include prices; the application calculates the quotation separately.
 - Keep each day realistic. Avoid excessive travel.
@@ -75,22 +75,31 @@ function validateOutput(
 
   let invalid = false;
   if (itinerary.days.length !== quiz.days) invalid = true;
-  if (!packageSlugs.has(itinerary.selected_package_slug)) invalid = true;
+  // The package is only a route reference; an unknown slug is dropped rather than rejected.
+  const selectedSlug =
+    itinerary.selected_package_slug && packageSlugs.has(itinerary.selected_package_slug)
+      ? itinerary.selected_package_slug
+      : null;
 
   const days = itinerary.days.map((day, index) => {
     if (day.day !== index + 1) invalid = true;
     if (!destinationSlugs.has(day.destination_slug)) invalid = true;
-    if (day.activities.some((activity) => !activities.has(activity))) invalid = true;
     if (!Number.isFinite(day.travel_km)) invalid = true;
+    // Unknown activity tags are dropped rather than rejected, so one stray tag does not
+    // cost a retry or a failed quote.
+    const known = {
+      ...day,
+      activities: day.activities.filter((activity) => activities.has(activity)),
+    };
     if (!accommodations.has(day.overnight)) {
-      return { ...day, overnight: "To be confirmed by the team" };
+      return { ...known, overnight: "To be confirmed by the team" };
     }
-    return day;
+    return known;
   });
 
   return {
     invalid,
-    itinerary: { ...itinerary, days },
+    itinerary: { ...itinerary, selected_package_slug: selectedSlug, days },
   };
 }
 
@@ -195,7 +204,8 @@ export async function generateTourBuilderResult(input: {
   onProgress?: (stage: string) => void;
 }): Promise<TourBuilderResult> {
   const context = await getTourBuilderContext();
-  if (context.destinations.length === 0 || context.packages.length === 0) {
+  // Only destinations are required. Published packages are optional route references.
+  if (context.destinations.length === 0) {
     throw new TourBuilderError("unavailable");
   }
 
@@ -231,10 +241,8 @@ export async function generateTourBuilderResult(input: {
   }
 
   const itinerary = generated;
-  const selectedPackage = context.packages.find(
-    (item) => item.slug === itinerary.selected_package_slug,
-  );
-  if (!selectedPackage) throw new TourBuilderError("invalid_output");
+  const selectedPackage =
+    context.packages.find((item) => item.slug === itinerary.selected_package_slug) ?? null;
 
   const rates = await getTourBuilderRates();
   const mode = input.quiz.selfDrive ? "self_drive" : "driver";
@@ -250,11 +258,9 @@ export async function generateTourBuilderResult(input: {
       : (vehiclesForParty(rates.vehicles, mode, partySize)[0] ?? null);
   const distanceKm = itinerary.days.reduce((sum, day) => sum + day.travel_km, 0);
   const breakdown = computeQuote({
-    package: {
-      id: selectedPackage.id,
-      title: selectedPackage.title,
-      slug: selectedPackage.slug,
-    },
+    package: selectedPackage
+      ? { id: selectedPackage.id, title: selectedPackage.title, slug: selectedPackage.slug }
+      : null,
     rates,
     budget: input.quiz.budget,
     board: input.quiz.board,
@@ -303,10 +309,10 @@ export async function generateTourBuilderResult(input: {
       JSON.stringify(itinerary),
       JSON.stringify(breakdown),
       breakdown.totalLkr,
-      selectedPackage.id,
-      selectedPackage.title,
-      selectedPackage.slug,
-      selectedPackage.dailyRateLkr,
+      selectedPackage?.id ?? null,
+      selectedPackage?.title ?? null,
+      selectedPackage?.slug ?? null,
+      selectedPackage?.dailyRateLkr ?? null,
       vehicle?.id ?? null,
       vehicle?.name ?? null,
       distanceKm,
@@ -319,7 +325,7 @@ export async function generateTourBuilderResult(input: {
       event: "tour_quote_drafted",
       requestId: input.requestId,
       reference,
-      packageSlug: selectedPackage.slug,
+      packageSlug: selectedPackage?.slug ?? null,
       distanceKm,
       totalLkr: breakdown.totalLkr,
     },
@@ -330,7 +336,9 @@ export async function generateTourBuilderResult(input: {
     sessionId,
     reference,
     itinerary,
-    selectedPackage: { title: selectedPackage.title, slug: selectedPackage.slug },
+    selectedPackage: selectedPackage
+      ? { title: selectedPackage.title, slug: selectedPackage.slug }
+      : null,
     distanceKm,
     vehicleName: vehicle?.name ?? null,
   };

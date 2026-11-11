@@ -237,7 +237,11 @@ export default async function AdminQuotePage({
             <h2 className="font-heading text-xl font-semibold">{strings.admin.quotePricing}</h2>
             {breakdown?.stay ? (
               <dl className="mt-4 space-y-3 text-sm">
-                <Row label={strings.admin.quotePackage} value={breakdown.package.title} strong />
+                <Row
+                  label={strings.admin.quotePackage}
+                  value={breakdown.package?.title ?? strings.admin.noPackage}
+                  strong
+                />
                 <Row
                   label={strings.admin.quoteHotel}
                   value={`${BUDGET_LABELS[breakdown.stay.tier]} · ${formatLkr(breakdown.stay.ratePerPersonNightLkr)} × ${breakdown.stay.nights} nights × ${breakdown.stay.travellerUnits}`}
@@ -308,9 +312,8 @@ export default async function AdminQuotePage({
                   name="packageId"
                   defaultValue={quote.package_id ?? ""}
                   className={inputClass}
-                  required
                 >
-                  <option value="">Select a package</option>
+                  <option value="">{strings.admin.noPackage}</option>
                   {packageResult.rows.map((item) => (
                     <option key={item.id} value={item.id}>
                       {item.title} ({formatLkr(Number(item.daily_rate_lkr))}/day)

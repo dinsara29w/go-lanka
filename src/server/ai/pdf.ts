@@ -71,7 +71,7 @@ export async function generateItineraryPdf(input: {
   breakdown: QuoteBreakdown;
   totalLkr: number;
   reference: string;
-  packageTitle: string;
+  packageTitle?: string | null;
   destinations: TourBuilderDestination[];
   adminNotes?: string | null;
 }): Promise<Buffer> {
@@ -334,13 +334,15 @@ export async function generateItineraryPdf(input: {
     }
   }
 
-  page.drawText(`Package: ${safeText(input.packageTitle)}`, {
-    x: MARGIN,
-    y: Math.max(y - 8, MARGIN + 30),
-    size: 8,
-    font: regular,
-    color: MUTED,
-  });
+  if (input.packageTitle) {
+    page.drawText(`Package: ${safeText(input.packageTitle)}`, {
+      x: MARGIN,
+      y: Math.max(y - 8, MARGIN + 30),
+      size: 8,
+      font: regular,
+      color: MUTED,
+    });
+  }
 
   const disclaimer = wrapText(
     "This is an AI-assisted itinerary reviewed by the local team. Destinations, hotels, activities and availability are subject to confirmation before booking.",

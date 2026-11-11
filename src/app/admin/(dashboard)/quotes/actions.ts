@@ -105,7 +105,7 @@ export async function saveQuoteReviewAction(formData: FormData): Promise<void> {
 
   const parsed = z
     .object({
-      packageId: z.string().uuid(),
+      packageId: z.string().uuid().optional(),
       vehicleId: z.string().uuid().optional(),
       board: z.enum(BOARD_TYPES),
       selfDrive: z.boolean(),
@@ -114,7 +114,7 @@ export async function saveQuoteReviewAction(formData: FormData): Promise<void> {
       adminNotes: z.string().trim().max(4000).optional(),
     })
     .safeParse({
-      packageId: formValue(formData, "packageId"),
+      packageId: formValue(formData, "packageId") || undefined,
       vehicleId: formValue(formData, "vehicleId") || undefined,
       board: formValue(formData, "board"),
       selfDrive: formData.get("selfDrive") === "on",
@@ -131,12 +131,16 @@ export async function saveQuoteReviewAction(formData: FormData): Promise<void> {
   if (!quote) redirect("/admin/quotes?error=quote");
 
   const pool = getAdminPool();
-  const packageResult = await pool.query<PackageRateRow>(
-    `SELECT id, title, slug, daily_rate_lkr, tier FROM packages WHERE id = $1`,
-    [parsed.data.packageId],
-  );
-  const packageRow = packageResult.rows[0];
-  if (!packageRow) redirect(`/admin/quotes/${id}?error=review`);
+  // The package is an optional route reference; a quote can be reviewed without one.
+  let packageRow: PackageRateRow | null = null;
+  if (parsed.data.packageId) {
+    const packageResult = await pool.query<PackageRateRow>(
+      `SELECT id, title, slug, daily_rate_lkr, tier FROM packages WHERE id = $1`,
+      [parsed.data.packageId],
+    );
+    packageRow = packageResult.rows[0] ?? null;
+    if (!packageRow) redirect(`/admin/quotes/${id}?error=review`);
+  }
 
   const vehicleResult = parsed.data.vehicleId
     ? await pool.query<VehicleRow>(
@@ -165,11 +169,9 @@ export async function saveQuoteReviewAction(formData: FormData): Promise<void> {
   const selfDrive = vehicle ? vehicle.mode === "self_drive" : parsed.data.selfDrive;
 
   const breakdown = computeQuote({
-    package: {
-      id: packageRow.id,
-      title: packageRow.title,
-      slug: packageRow.slug,
-    },
+    package: packageRow
+      ? { id: packageRow.id, title: packageRow.title, slug: packageRow.slug }
+      : null,
     rates,
     budget: quote.budget,
     board: parsed.data.board,
@@ -192,10 +194,10 @@ export async function saveQuoteReviewAction(formData: FormData): Promise<void> {
      WHERE id = $1`,
     [
       id,
-      packageRow.id,
-      packageRow.title,
-      packageRow.slug,
-      Number(packageRow.daily_rate_lkr),
+      packageRow?.id ?? null,
+      packageRow?.title ?? null,
+      packageRow?.slug ?? null,
+      packageRow ? Number(packageRow.daily_rate_lkr) : null,
       vehicle?.id ?? null,
       vehicle?.name ?? null,
       parsed.data.board,
@@ -272,7 +274,7 @@ export async function approveQuoteAction(formData: FormData): Promise<void> {
       breakdown,
       totalLkr,
       reference: quote.reference,
-      packageTitle: quote.package_title ?? breakdown.package.title,
+      packageTitle: quote.package_title ?? breakdown.package?.title ?? null,
       destinations: context.destinations,
       adminNotes: quote.admin_notes,
     });

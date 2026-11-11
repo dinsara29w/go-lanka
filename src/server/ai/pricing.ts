@@ -36,8 +36,8 @@ export type VehicleRate = {
 };
 
 export type QuoteBreakdown = {
-  /** The published package the AI used as the route basis (not priced). */
-  package: { id: string; title: string; slug: string };
+  /** The published package the AI used as the route basis (not priced); null when none fits. */
+  package: { id: string; title: string; slug: string } | null;
   stay: {
     tier: BudgetTier;
     ratePerPersonNightLkr: number;
@@ -94,7 +94,7 @@ export function vehiclesForParty(
 }
 
 export function computeQuote(input: {
-  package: { id: string; title: string; slug: string };
+  package: { id: string; title: string; slug: string } | null;
   rates: TourBuilderRates;
   budget: BudgetTier;
   board: BoardType;
