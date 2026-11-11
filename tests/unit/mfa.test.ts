@@ -22,7 +22,11 @@ describe("MFA secret storage", () => {
 
   it("rejects tampered ciphertext", () => {
     const encrypted = encryptMfaSecret(createMfaSecret());
-    const tampered = `${encrypted.slice(0, -1)}A`;
+    // Change the first character of the ciphertext: it always alters a real byte. (The last
+    // character can carry unused padding bits, or already be "A", which made this test flaky.)
+    const [version, iv, tag, ciphertext] = encrypted.split(".");
+    const flipped = `${ciphertext[0] === "A" ? "B" : "A"}${ciphertext.slice(1)}`;
+    const tampered = [version, iv, tag, flipped].join(".");
 
     expect(() => decryptMfaSecret(tampered)).toThrow();
   });

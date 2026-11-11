@@ -44,7 +44,7 @@ export function Logo({
       <span className="flex flex-col leading-none">
         <span
           className={cn(
-            "font-heading text-[1.5rem] font-semibold tracking-tight",
+            "font-heading text-[1.75rem] font-semibold tracking-tight",
             inverted ? "text-white" : "text-ink",
           )}
         >
