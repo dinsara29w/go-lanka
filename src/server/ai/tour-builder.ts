@@ -350,6 +350,7 @@ export async function generateTourBuilderResult(input: {
       reference,
       packageTitle: selectedPackage?.title ?? null,
       destinations: context.destinations,
+      whatsapp: rates.adminWhatsAppNumber,
     });
     const filePath = await savePrivatePdf(pdf);
     const token = generateToken(32);

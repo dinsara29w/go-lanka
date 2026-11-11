@@ -197,6 +197,13 @@ export async function readImageForPdf(
   src: string | null | undefined,
   width: number,
   height: number,
+  shade?: {
+    bottom?: number;
+    bottomFraction?: number;
+    top?: number;
+    topFraction?: number;
+    flat?: number;
+  },
 ): Promise<Buffer | null> {
   if (!src) return null;
   let file: string | null = null;
@@ -208,11 +215,28 @@ export async function readImageForPdf(
   }
   if (!file) return null;
   try {
-    return await sharp(file, { limitInputPixels: MAX_PIXELS })
+    let image = sharp(file, { limitInputPixels: MAX_PIXELS })
       .rotate()
-      .resize({ width, height, fit: "cover", position: "attention" })
-      .jpeg({ quality: 82, mozjpeg: true })
-      .toBuffer();
+      .resize({ width, height, fit: "cover", position: "centre" });
+    if (shade) {
+      // Navy gradients are baked into the picture so the PDF has no banding or seams.
+      const navy = "#0a2a3f";
+      const stops = (opacity: number) =>
+        `<stop offset="0" stop-color="${navy}" stop-opacity="${opacity}"/><stop offset="1" stop-color="${navy}" stop-opacity="0"/>`;
+      const bottomH = Math.round(height * (shade.bottomFraction ?? 0.5));
+      const topH = Math.round(height * (shade.topFraction ?? 0.25));
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+        `<defs><linearGradient id="b" x1="0" y1="1" x2="0" y2="0">${stops(shade.bottom ?? 0)}</linearGradient>` +
+        `<linearGradient id="t" x1="0" y1="0" x2="0" y2="1">${stops(shade.top ?? 0)}</linearGradient></defs>` +
+        `<rect width="${width}" height="${height}" fill="${navy}" fill-opacity="${shade.flat ?? 0}"/>` +
+        `<rect y="${height - bottomH}" width="${width}" height="${bottomH}" fill="url(#b)"/>` +
+        `<rect width="${width}" height="${topH}" fill="url(#t)"/></svg>`;
+      image = sharp(await image.jpeg({ quality: 90 }).toBuffer()).composite([
+        { input: Buffer.from(svg) },
+      ]);
+    }
+    return await image.jpeg({ quality: 82, mozjpeg: true }).toBuffer();
   } catch {
     return null;
   }
