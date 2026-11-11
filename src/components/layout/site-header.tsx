@@ -6,15 +6,13 @@ import { CurrencySwitcher } from "@/components/currency/currency-switcher";
 import { NavLink } from "@/components/layout/nav-link";
 import { strings } from "@/content/strings";
 
+// Only the essentials live up here. Reviews, gallery, travel info and contact are in the footer;
+// "Plan my trip" goes to the contact page, and the logo goes home.
 const navigation = [
-  { href: "/", label: strings.nav.home },
-  { href: "/about", label: strings.nav.about },
-  { href: "/map", label: strings.nav.map },
   { href: "/packages", label: strings.nav.packages },
-  { href: "/reviews", label: strings.nav.reviews },
-  { href: "/photos", label: strings.nav.photos },
   { href: "/tour-builder", label: strings.nav.tourBuilder },
-  { href: "/contact", label: strings.nav.contact },
+  { href: "/map", label: strings.nav.map },
+  { href: "/about", label: strings.nav.about },
 ];
 
 export function SiteHeader() {
@@ -25,21 +23,21 @@ export function SiteHeader() {
 
         <nav
           aria-label="Main navigation"
-          className="hidden items-center gap-0.5 text-[0.875rem] font-semibold xl:flex"
+          className="hidden items-center gap-1 text-base font-semibold lg:flex"
         >
           {navigation.map((item) => (
             <NavLink key={item.href} href={item.href} label={item.label} />
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 xl:flex">
+        <div className="hidden items-center gap-3 lg:flex">
           <CurrencySwitcher />
           <Link href="/contact" className="btn-gold btn-sm">
             {strings.site.planTrip}
           </Link>
         </div>
 
-        <details className="group relative xl:hidden">
+        <details className="group relative lg:hidden">
           <summary
             aria-label={strings.common.menu}
             className="flex size-11 cursor-pointer list-none items-center justify-center rounded-xl border border-line bg-white text-ink transition-colors hover:bg-band [&::-webkit-details-marker]:hidden"

@@ -7,13 +7,13 @@
 /*
  * Go Lanka design system.
  * Palette taken from the logo: steel-blue ring, teal ribbon, sun gold, palm green,
- * on a warm cream page. Headings: Fraunces (serif) · Body: Manrope (app/layout.tsx).
+ * on a warm cream page. Headings: Alegreya (serif) · Body: Source Sans 3 (app/layout.tsx).
  */
 @theme inline {
   --font-sans:
-    var(--font-manrope), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
-  --font-heading: var(--font-fraunces), "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    var(--font-source-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  --font-heading: var(--font-alegreya), "Iowan Old Style", "Palatino Linotype", Georgia, serif;
 
   /* Brand palette (from the logo) */
   --color-brand: #2b6a8c;
@@ -203,6 +203,11 @@
 
   body {
     @apply text-foreground;
+  }
+
+  /* Alegreya's default figures are old-style; prices and ratings read better lining. */
+  .font-heading {
+    font-variant-numeric: lining-nums;
   }
 
   ::selection {
