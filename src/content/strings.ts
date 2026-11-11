@@ -21,7 +21,7 @@ export const strings = {
     reviews: "Reviews",
     photos: "Gallery",
     travelInfo: "Travel info",
-    tourBuilder: "Tour builder",
+    tourBuilder: "AI tour builder",
     about: "About",
     contact: "Contact",
   },
@@ -38,6 +38,7 @@ export const strings = {
     destinations: "Destinations",
     privacyPolicy: "Privacy policy",
     termsAndConditions: "Terms and conditions",
+    photoCredits: "Photo credits",
     days: "days",
     journeys: "journeys",
     journey: "journey",
@@ -89,6 +90,74 @@ export const strings = {
     ctaHeading: "Ready when you are",
     ctaBody: "Send us your dates and what you love. We reply with a route and a price.",
     ctaButton: "Start planning",
+    placesIntro: "Our eight main places. Tap one to start a trip there.",
+    planHere: "Plan a trip here",
+    ai: {
+      eyebrow: "AI tour builder",
+      title: "Plan your own route in a few minutes",
+      body: "Choose the places you want to see, set your days, budget and group size, and our AI planner drafts a day-by-day route with driving distances. A real person on our team checks it before you get a price.",
+      points: [
+        "Pick from our eight main places",
+        "Choose a hotel level, meal plan and vehicle",
+        "See your route on a map with an estimated price",
+      ],
+      cta: "Try the tour builder",
+      note: "Free to try. Nothing is booked or charged.",
+      exampleLabel: "Example route",
+      exampleTitle: "A classic island loop",
+      exampleNote: "Your own route will follow the places and days you pick.",
+    },
+    how: {
+      eyebrow: "How it works",
+      heading: "From first idea to",
+      accent: "your driver at the door",
+      steps: [
+        {
+          title: "Tell us your plan",
+          description:
+            "Use the tour builder, or send a message with your dates, interests and group size.",
+        },
+        {
+          title: "We shape your route",
+          description:
+            "Our team checks the route, adjusts it to your pace and sends you a clear price.",
+        },
+        {
+          title: "Confirm and travel",
+          description:
+            "We confirm the details with you, arrange your driver and stays, and stay on WhatsApp throughout.",
+        },
+      ],
+    },
+    island: {
+      eyebrow: "Sri Lanka at a glance",
+      heading: "One island,",
+      accent: "eight places",
+      intro: "A classic loop takes you from the capital to the hills and down to the south coast.",
+      openMap: "Open the full map",
+      routeLabel: "Example loop",
+    },
+    faqFallback: [
+      {
+        question: "How does the AI tour builder work?",
+        answer:
+          "You pick the places, days, budget, meal plan and vehicle. The AI drafts a day-by-day route using only our real destinations, and the price is worked out from our own rates. A person on our team reviews it before you get the quote.",
+      },
+      {
+        question: "Do I pay anything on the website?",
+        answer:
+          "No. The website only takes enquiries and quote requests. Our team confirms availability and the final price with you directly.",
+      },
+      {
+        question: "Can I change a route after I get it?",
+        answer:
+          "Yes. Tell us what to add, remove or slow down and we will update the route and the price.",
+      },
+      {
+        question: "Who plans my trip?",
+        answer: "A local team in Sri Lanka. You speak directly with the people handling your trip.",
+      },
+    ],
     slideshowPause: "Pause slideshow",
     slideshowPlay: "Play slideshow",
     slideshowShow: "Show photo",
@@ -136,8 +205,7 @@ export const strings = {
       },
     ],
     featuredHeading: "Featured journeys",
-    featuredEmpty:
-      "The package catalogue will appear here once the team has published the first itineraries.",
+    featuredEmpty: "Ready-made routes will appear here once the team has published them.",
     viewAllPackages: "View all packages",
   },
   packages: {
@@ -156,9 +224,10 @@ export const strings = {
     similarAccent: "journeys",
     detailCtaHeading: "Like this route?",
     detailCtaBody: "Tell us your dates and we will confirm availability and price.",
-    emptyTitle: "Itineraries are being prepared",
+    emptyTitle: "Ready-made journeys are coming soon",
     emptyBody:
-      "The team is putting together the first published tours. In the meantime, send us a message and we can plan a custom trip.",
+      "Our team is preparing the first routes. Until then you can build your own in the AI tour builder, or message us and we will plan one for you.",
+    emptyBuilder: "Build my own route",
     featuredLabel: "Featured",
     from: "From",
     durationLabel: "Duration",
@@ -205,6 +274,17 @@ export const strings = {
       "Choose the places you want to see and how you like to travel. We turn it into a route, and the team reviews the quote before it is sent to you.",
     locations: "Where would you love to go?",
     locationsHint: "Pick up to 10 places. The route starts with your selections.",
+    pickOne: "Pick at least one place to start.",
+    setup: {
+      heading: "Setup checklist",
+      note: "Only you see this, while the site runs on your computer. Visitors never see it.",
+      no_destinations:
+        "There are no places in the database yet. Run npm run db:migrate to add the eight main places, or add places in the admin panel.",
+      no_ai_key:
+        "The AI key is missing. Add DEEPSEEK_API_KEY=your-key to the .env.local file, then restart the site.",
+      no_spam_check:
+        "The spam check is not set up. For testing on your computer, add NEXT_PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA and TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA to the .env.local file, then restart the site. The live site needs real Cloudflare Turnstile keys.",
+    },
     yourTrip: "Your trip",
     placeChosen: "place chosen",
     placesChosen: "places chosen",
@@ -845,6 +925,7 @@ export const strings = {
     quoteApprovedFootnote:
       "The traveller receives the approved total and a PDF link. Bookings are handled separately.",
     noVehicleSelected: "Not assigned",
+    noPackage: "No package (custom route)",
     quoteHotel: "Hotel",
     quoteStay: "Hotel total",
     quoteDaily: "Per-day charge",

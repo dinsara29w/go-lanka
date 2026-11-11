@@ -40,7 +40,7 @@ export default async function TravelInfoPage() {
       <PageBanner
         title={strings.travelInfo.heading}
         intro={strings.travelInfo.intro}
-        image={siteImages.hills}
+        image={siteImages.ellaHills}
         crumbs={[{ label: strings.nav.travelInfo }]}
       />
 

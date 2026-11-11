@@ -12,7 +12,11 @@ const mediaPath = z
   .string()
   .trim()
   .max(500)
-  .regex(/^\/media\/[a-z0-9-]+\/[a-f0-9-]+\.webp$/i, "Upload an image first.");
+  // Admin uploads (/media/...) or the photos bundled with the site (/places/...).
+  .regex(
+    /^\/(?:media\/[a-z0-9-]+\/[a-f0-9-]+\.webp|places\/[a-z0-9-]+\.jpg)$/i,
+    "Upload an image first.",
+  );
 
 export const galleryImageSchema = z.object({
   path: mediaPath,

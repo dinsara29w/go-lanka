@@ -34,7 +34,8 @@ export const tourBuilderRequestSchema = z
 export const generatedItinerarySchema = z.object({
   title: z.string().trim().min(1).max(200),
   summary: z.string().trim().min(1).max(1000),
-  selected_package_slug: z.string().trim().min(1).max(120),
+  // Optional: used only when published packages exist; otherwise null.
+  selected_package_slug: z.string().trim().max(120).nullable(),
   days: z
     .array(
       z.object({

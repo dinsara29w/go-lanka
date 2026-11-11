@@ -60,7 +60,7 @@ export default async function PackagesPage({
       <PageBanner
         title={strings.packages.heading}
         intro={strings.packages.intro}
-        image={siteImages.hills}
+        image={siteImages.ellaHills}
         crumbs={[{ label: strings.nav.packages }]}
       />
 

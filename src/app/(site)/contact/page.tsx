@@ -61,7 +61,7 @@ export default async function ContactPage() {
       <PageBanner
         title={strings.contact.heading}
         intro={strings.contact.intro}
-        image={siteImages.mirissa}
+        image={siteImages.downSouth}
         crumbs={[{ label: strings.nav.contact }]}
       />
 

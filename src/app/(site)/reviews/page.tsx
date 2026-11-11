@@ -27,7 +27,7 @@ export default async function ReviewsPage() {
       <PageBanner
         title={strings.reviews.heading}
         intro={strings.reviews.intro}
-        image={siteImages.tea}
+        image={siteImages.nuwaraEliya}
         crumbs={[{ label: strings.nav.reviews }]}
       />
 

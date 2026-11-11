@@ -116,6 +116,10 @@ export function SiteFooter({ settings }: { settings: SiteSettings | null }) {
             <Link href="/terms" className="hover:text-white">
               {strings.site.termsAndConditions}
             </Link>
+            {" · "}
+            <Link href="/credits" className="hover:text-white">
+              {strings.site.photoCredits}
+            </Link>
           </p>
         </div>
       </div>

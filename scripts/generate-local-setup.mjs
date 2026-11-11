@@ -27,8 +27,10 @@ const cronSecret = secret(32);
 
 const env = `NODE_ENV=development
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
-NEXT_PUBLIC_TURNSTILE_SITE_KEY=
-TURNSTILE_SECRET_KEY=
+# Cloudflare's official Turnstile TEST keys: they always pass and only work on localhost.
+# The live site needs real keys from the Cloudflare dashboard.
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
 
 PUBLIC_DATABASE_URL=postgresql://golanka_public:${publicPassword}@localhost:5432/go_lanka_dev
 AUTH_DATABASE_URL=postgresql://golanka_auth:${authPassword}@localhost:5432/go_lanka_dev

@@ -49,7 +49,7 @@ export default async function PhotosPage({
       <PageBanner
         title={strings.photos.heading}
         intro={strings.photos.intro}
-        image={siteImages.galle}
+        image={siteImages.downSouth}
         crumbs={[{ label: strings.nav.photos }]}
       />
 

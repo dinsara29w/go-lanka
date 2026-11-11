@@ -45,7 +45,7 @@ test("packages page renders with a usable catalogue state", async ({ page }) => 
   await page.goto("/packages");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Tour packages");
 
-  const emptyState = page.getByText("Itineraries are being prepared");
+  const emptyState = page.getByText("Ready-made journeys are coming soon");
   if ((await emptyState.count()) > 0) {
     await expect(emptyState).toBeVisible();
   } else {

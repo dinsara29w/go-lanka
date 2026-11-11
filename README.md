@@ -59,11 +59,13 @@ The repository deliberately does not contain `.env.local` or database passwords.
    & "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -d postgres -f "C:\Projects\Go Lanka\db\bootstrap.local.sql"
    ```
 
-4. Apply migrations:
+4. Apply migrations (this also adds the client's eight main destinations):
 
    ```powershell
    npm run db:migrate
    ```
+
+   To try the AI tour builder, also add your key to `.env.local`: `DEEPSEEK_API_KEY=your-key`. (The setup script already adds Cloudflare's test keys for the spam check.) If your `.env.local` was created before this change, add the two `TURNSTILE` lines from `.env.example` by hand.
 
 5. Start the app:
 

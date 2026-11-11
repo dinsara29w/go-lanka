@@ -37,7 +37,7 @@ type TourResult = {
   sessionId: string;
   reference: string;
   itinerary: GeneratedItinerary;
-  selectedPackage: { title: string; slug: string };
+  selectedPackage: { title: string; slug: string } | null;
   distanceKm: number;
   vehicleName: string | null;
 };
@@ -60,6 +60,7 @@ export function TourBuilderExperience({
   siteKey,
   vehicles = [],
   tierRatesLkr,
+  initialLocations = [],
   initialDays = 7,
   initialAdults = 2,
 }: {
@@ -67,10 +68,11 @@ export function TourBuilderExperience({
   siteKey: string | null;
   vehicles?: PublicVehicleOption[];
   tierRatesLkr?: Record<BudgetTier, number>;
+  initialLocations?: string[];
   initialDays?: number;
   initialAdults?: number;
 }) {
-  const [locations, setLocations] = useState<string[]>([]);
+  const [locations, setLocations] = useState<string[]>(initialLocations);
   const [budget, setBudget] = useState<BudgetTier>("star");
   const [board, setBoard] = useState<BoardType>("bed_breakfast");
   const [selfDrive, setSelfDrive] = useState(false);
@@ -590,6 +592,11 @@ export function TourBuilderExperience({
           >
             {building ? strings.tourBuilder.building : strings.tourBuilder.submit}
           </button>
+          {locations.length === 0 ? (
+            <p className="text-center text-sm font-semibold text-brand-dark">
+              {strings.tourBuilder.pickOne}
+            </p>
+          ) : null}
           <p className="text-center text-xs leading-5 text-stone">
             {strings.tourBuilder.reviewNote}
           </p>
@@ -668,10 +675,14 @@ function TourResultView({
         </div>
 
         <dl className="grid gap-3 text-sm sm:grid-cols-3">
-          <div>
-            <dt className="text-xs text-muted-foreground">{strings.tourBuilder.selectedPackage}</dt>
-            <dd className="font-medium">{result.selectedPackage.title}</dd>
-          </div>
+          {result.selectedPackage ? (
+            <div>
+              <dt className="text-xs text-muted-foreground">
+                {strings.tourBuilder.selectedPackage}
+              </dt>
+              <dd className="font-medium">{result.selectedPackage.title}</dd>
+            </div>
+          ) : null}
           <div>
             <dt className="text-xs text-muted-foreground">{strings.tourBuilder.distance}</dt>
             <dd className="font-medium">{Math.round(result.distanceKm)} km</dd>

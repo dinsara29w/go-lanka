@@ -6,10 +6,15 @@ import { cn } from "cn";
 
 import { CompassStar, CompassWatermark } from "@/components/brand/compass";
 import { LogoMark } from "@/components/brand/logo";
+import { AiBuilderPromo } from "@/components/home/ai-builder-promo";
+import { DestinationMosaic, type MosaicPlace } from "@/components/home/destination-mosaic";
 import { HeroSlideshow } from "@/components/home/hero-slideshow";
+import { HowItWorks } from "@/components/home/how-it-works";
+import { IslandRouteMap } from "@/components/home/island-route-map";
 import { PackageGrid } from "@/components/packages/package-card";
 import { FaqList, QuoteCard } from "@/components/site/blocks";
 import { CtaBox, SectionHeading } from "@/components/site/section";
+import { findMainPlace, mainPlaces } from "@/content/places";
 import { fallbackImage, siteImages } from "@/content/site-images";
 import { strings } from "@/content/strings";
 import { listMapDestinations } from "@/server/repositories/destinations";
@@ -25,19 +30,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-const slides = [
-  siteImages.hills,
-  siteImages.sigiriya,
-  siteImages.ella,
-  siteImages.galle,
-  siteImages.polonnaruwa,
-  siteImages.kandy,
-  siteImages.tea,
-  siteImages.leopard,
-  siteImages.elephant,
-  siteImages.mirissa,
-  siteImages.pidurangala,
-];
+// One photo for each of the eight main places.
+const slides = mainPlaces.map((place) => place.image);
 
 const whyIcons = [Route, Car, MessageCircle];
 const durationChoices = [5, 7, 10, 14];
@@ -55,8 +49,27 @@ export default async function HomePage() {
   ]);
 
   const rating = aggregate.count > 0 ? aggregate.average.toFixed(1) : null;
-  const places = destinations.slice(0, 5);
-  const faqs = travelInfo.flatMap((section) => section.faqs).slice(0, 5);
+  // Prefer the database places (editable in admin), in route order; fall back to the built-in eight.
+  const order = (slug: string) => {
+    const index = mainPlaces.findIndex((place) => place.slug === slug);
+    return index === -1 ? mainPlaces.length : index;
+  };
+  const mosaicPlaces: MosaicPlace[] =
+    destinations.length > 0
+      ? [...destinations]
+          .sort((a, b) => order(a.slug) - order(b.slug) || a.name.localeCompare(b.name))
+          .slice(0, 8)
+          .map((place, index) => ({
+            slug: place.slug,
+            name: place.name,
+            region: place.region,
+            image: place.heroImage
+              ? { src: place.heroImage, alt: place.heroImageAlt ?? place.name }
+              : (findMainPlace(place.slug)?.image ?? fallbackImage(index)),
+          }))
+      : mainPlaces.map(({ slug, name, region, image }) => ({ slug, name, region, image }));
+  const dbFaqs = travelInfo.flatMap((section) => section.faqs).slice(0, 5);
+  const faqs = dbFaqs.length > 0 ? dbFaqs : [...strings.home.faqFallback];
 
   return (
     <>
@@ -151,8 +164,36 @@ export default async function HomePage() {
         </form>
       </section>
 
-      {/* JOURNEYS */}
+      {/* PLACES: the eight main destinations, each opens the AI builder with that place picked */}
       <section className={cn("pt-20", sectionPad)}>
+        <div className={wrap}>
+          <SectionHeading
+            align="left"
+            eyebrow={strings.home.placesEyebrow}
+            title={strings.home.placesHeading}
+            accent={strings.home.placesAccent}
+            intro={strings.home.placesIntro}
+            action={
+              <Link href="/map" className="btn-outline btn-sm shrink-0">
+                {strings.home.exploreMap}
+              </Link>
+            }
+          />
+          <div className="mt-9">
+            <DestinationMosaic places={mosaicPlaces} />
+          </div>
+        </div>
+      </section>
+
+      {/* AI TOUR BUILDER */}
+      <section className={cn("pt-24", sectionPad)}>
+        <div className={wrap}>
+          <AiBuilderPromo />
+        </div>
+      </section>
+
+      {/* JOURNEYS */}
+      <section className={cn("pt-24", sectionPad)}>
         <div className={wrap}>
           <SectionHeading
             align="left"
@@ -169,6 +210,28 @@ export default async function HomePage() {
           <div className="mt-9">
             <PackageGrid packages={packages} />
           </div>
+        </div>
+      </section>
+
+      {/* HOW IT WORKS */}
+      <section className={cn("mt-24 bg-band py-20", sectionPad)}>
+        <div className={wrap}>
+          <HowItWorks />
+        </div>
+      </section>
+
+      {/* ISLAND AT A GLANCE */}
+      <section className={cn("pt-24", sectionPad)}>
+        <div className={wrap}>
+          <SectionHeading
+            align="left"
+            eyebrow={strings.home.island.eyebrow}
+            title={strings.home.island.heading}
+            accent={strings.home.island.accent}
+            intro={strings.home.island.intro}
+            className="mb-9"
+          />
+          <IslandRouteMap />
         </div>
       </section>
 
@@ -235,69 +298,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* PLACES: one big tile and four small ones */}
-      {places.length > 0 ? (
-        <section className={cn("pt-24", sectionPad)}>
-          <div className={wrap}>
-            <SectionHeading
-              align="left"
-              eyebrow={strings.home.placesEyebrow}
-              title={strings.home.placesHeading}
-              accent={strings.home.placesAccent}
-              action={
-                <Link href="/map" className="btn-outline btn-sm shrink-0">
-                  {strings.home.exploreMap}
-                </Link>
-              }
-            />
-            <div className="mt-9 grid auto-rows-[11rem] grid-cols-2 gap-4 md:auto-rows-[12.5rem] md:grid-cols-4">
-              {places.map((place, index) => {
-                const image = place.heroImage
-                  ? { src: place.heroImage, alt: place.heroImageAlt ?? place.name }
-                  : fallbackImage(index + 5);
-                return (
-                  <Link
-                    key={place.id}
-                    href={`/packages?destination=${place.slug}`}
-                    className={cn(
-                      "zoom-img relative overflow-hidden rounded-3xl shadow-card",
-                      index === 0 && "col-span-2 row-span-2",
-                    )}
-                  >
-                    <Image
-                      src={image.src}
-                      alt={image.alt}
-                      fill
-                      sizes={
-                        index === 0
-                          ? "(min-width: 768px) 600px, 100vw"
-                          : "(min-width: 768px) 300px, 50vw"
-                      }
-                      className="object-cover"
-                    />
-                    <span
-                      aria-hidden="true"
-                      className="absolute inset-0 bg-[linear-gradient(0deg,rgba(11,42,61,0.8),rgba(11,42,61,0)_58%)]"
-                    />
-                    <span className="absolute inset-x-4 bottom-4 text-white">
-                      <span
-                        className={cn(
-                          "block font-heading leading-tight font-semibold",
-                          index === 0 ? "text-3xl" : "text-xl",
-                        )}
-                      >
-                        {place.name}
-                      </span>
-                      <span className="mt-0.5 block text-xs text-white/80">{place.region}</span>
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      ) : null}
 
       {/* GUEST PHOTOS: a sideways scrolling strip */}
       {photos.length > 0 ? (
@@ -393,7 +393,7 @@ export default async function HomePage() {
       ) : null}
 
       {/* FAQ: heading on the left, answers on the right */}
-      {faqs.length > 0 ? (
+      {
         <section className={cn("pt-24", sectionPad)}>
           <div className={cn(wrap, "grid gap-10 lg:grid-cols-[0.8fr_1.2fr]")}>
             <div className="lg:sticky lg:top-28 lg:self-start">
@@ -411,7 +411,7 @@ export default async function HomePage() {
             <FaqList faqs={faqs} className="mx-0 max-w-none" />
           </div>
         </section>
-      ) : null}
+      }
 
       <CtaBox
         title={strings.home.ctaHeading}

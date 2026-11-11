@@ -99,7 +99,7 @@ export default async function PackageDetailPage({ params }: { params: Promise<{ 
     .slice(0, 3);
   const banner = item.heroImage
     ? { src: item.heroImage, alt: item.heroImageAlt ?? item.title }
-    : siteImages.pidurangala;
+    : siteImages.sigiriyaRock;
   const chips = [
     formatDuration(item.durationDays),
     ...(item.destinations.length > 0

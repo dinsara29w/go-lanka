@@ -22,7 +22,7 @@ export default async function MapPage() {
       <PageBanner
         title={strings.map.heading}
         intro={strings.map.intro}
-        image={siteImages.galle}
+        image={siteImages.downSouth}
         crumbs={[{ label: strings.nav.map }]}
       />
       <MapExplorer destinations={destinations} />
