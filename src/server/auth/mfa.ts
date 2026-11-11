@@ -60,7 +60,7 @@ export function decryptMfaSecret(payload: string): string {
 export function buildMfaUri(secret: string, email: string): string {
   return generateURI({
     strategy: "totp",
-    issuer: "Sri Lanka Tours",
+    issuer: "Go Lanka",
     label: email,
     secret,
     period: TOTP_PERIOD_SECONDS,

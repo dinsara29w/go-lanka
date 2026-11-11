@@ -1,4 +1,4 @@
-# Implementation Plan — Sri Lanka Tours Platform
+# Implementation Plan — Go Lanka Platform
 
 **Status:** P5 implementation complete — P0–P5 implemented, security-first  
 **Source:** `instructions.md`  

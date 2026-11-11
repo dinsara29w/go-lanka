@@ -1,4 +1,4 @@
-export const SITE_NAME = "Sri Lanka Tours";
+export const SITE_NAME = "Go Lanka";
 
 export function getSiteUrl(): string {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();

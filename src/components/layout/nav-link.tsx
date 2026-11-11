@@ -24,8 +24,8 @@ export function NavLink({
         href={href}
         aria-current={active ? "page" : undefined}
         className={cn(
-          "flex items-center rounded-xl px-3 py-3 text-sm font-medium transition-colors",
-          active ? "bg-tint text-brand" : "text-ink-soft hover:bg-band hover:text-ink",
+          "flex items-center rounded-xl px-3.5 py-3 text-sm font-semibold transition-colors",
+          active ? "bg-tint text-brand-dark" : "text-ink-soft hover:bg-band hover:text-ink",
           className,
         )}
       >
@@ -39,10 +39,8 @@ export function NavLink({
       href={href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "border-b-2 py-1.5 whitespace-nowrap transition-colors",
-        active
-          ? "border-brand text-brand"
-          : "border-transparent text-ink-soft hover:border-line hover:text-ink",
+        "rounded-full px-3.5 py-2 whitespace-nowrap transition-colors",
+        active ? "bg-tint text-brand-dark" : "text-ink-soft hover:bg-band hover:text-ink",
         className,
       )}
     >

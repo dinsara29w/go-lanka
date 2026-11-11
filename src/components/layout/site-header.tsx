@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { Menu } from "lucide-react";
 
+import { Logo } from "@/components/brand/logo";
 import { CurrencySwitcher } from "@/components/currency/currency-switcher";
 import { NavLink } from "@/components/layout/nav-link";
-import { Wordmark } from "@/components/layout/wordmark";
 import { strings } from "@/content/strings";
 
 const navigation = [
@@ -19,41 +19,41 @@ const navigation = [
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-white/[0.96] backdrop-blur-sm">
-      <div className="mx-auto flex h-[3.75rem] max-w-[73.75rem] items-center justify-between gap-6 px-4 sm:px-6 xl:px-0">
-        <Wordmark />
+    <header className="sticky top-0 z-40 border-b border-line/80 bg-page/90 backdrop-blur-md">
+      <div className="mx-auto flex h-[4.5rem] max-w-[75rem] items-center justify-between gap-5 px-4 sm:px-6">
+        <Logo size={48} />
 
         <nav
           aria-label="Main navigation"
-          className="hidden items-center gap-5 text-sm font-medium lg:flex xl:gap-6"
+          className="hidden items-center gap-0.5 text-[0.875rem] font-semibold xl:flex"
         >
           {navigation.map((item) => (
             <NavLink key={item.href} href={item.href} label={item.label} />
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3.5 lg:flex">
+        <div className="hidden items-center gap-3 xl:flex">
           <CurrencySwitcher />
-          <Link href="/contact" className="btn-pill btn-pill-sm">
+          <Link href="/contact" className="btn-gold btn-sm">
             {strings.site.planTrip}
           </Link>
         </div>
 
-        <details className="group relative lg:hidden">
+        <details className="group relative xl:hidden">
           <summary
             aria-label={strings.common.menu}
-            className="flex size-11 cursor-pointer list-none items-center justify-center rounded-full border border-line bg-white text-ink transition-colors hover:bg-band [&::-webkit-details-marker]:hidden"
+            className="flex size-11 cursor-pointer list-none items-center justify-center rounded-xl border border-line bg-white text-ink transition-colors hover:bg-band [&::-webkit-details-marker]:hidden"
           >
             <Menu aria-hidden="true" className="size-5" />
           </summary>
-          <div className="absolute right-0 z-50 mt-3 w-[min(20rem,calc(100vw-2rem))] rounded-2xl border border-line bg-white p-3 shadow-lift">
+          <div className="absolute right-0 z-50 mt-3 w-[min(20rem,calc(100vw-2rem))] rounded-3xl border border-line bg-white p-3 shadow-lift">
             <nav aria-label="Mobile navigation" className="flex flex-col gap-0.5">
               {navigation.map((item) => (
                 <NavLink key={item.href} href={item.href} label={item.label} mobile />
               ))}
               <div className="mt-2 flex items-center justify-between gap-3 border-t border-line px-1 pt-3">
                 <CurrencySwitcher />
-                <Link href="/contact" className="btn-pill btn-pill-sm">
+                <Link href="/contact" className="btn-gold btn-sm">
                   {strings.site.planTrip}
                 </Link>
               </div>

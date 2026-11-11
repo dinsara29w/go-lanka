@@ -230,7 +230,7 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
         </p>
         <button
           type="submit"
-          className="btn-pill"
+          className="btn-primary"
           disabled={status === "sending" || !turnstileToken}
         >
           {status === "sending" ? strings.contact.sending : strings.contact.submit}

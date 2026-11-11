@@ -5,43 +5,49 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Sri Lanka Tours design system (handoff/DESIGN.md).
- * Green theme, white cards, 3D pill buttons.
- * Headings: Plus Jakarta Sans · Body: DM Sans (loaded in app/layout.tsx).
+ * Go Lanka design system.
+ * Palette taken from the logo: steel-blue ring, teal ribbon, sun gold, palm green,
+ * on a warm cream page. Headings: Fraunces (serif) · Body: Manrope (app/layout.tsx).
  */
 @theme inline {
   --font-sans:
-    var(--font-dm-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    var(--font-manrope), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
-  --font-heading: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-fraunces), "Iowan Old Style", "Palatino Linotype", Georgia, serif;
 
-  /* Brand palette */
-  --color-brand: #0f7b4a;
-  --color-brand-top: #22a867;
-  --color-brand-edge: #06432a;
-  --color-brand-dark: #0a5a36;
-  --color-ink: #10211a;
-  --color-ink-soft: #475a50;
-  --color-stone: #5b6b63;
-  --color-line: #dde7e1;
-  --color-field: #cbd5e1;
-  --color-tint: #e7f4ec;
-  --color-page: #f6faf7;
-  --color-band: #edf5f0;
-  --color-amber: #f2b84b;
-  --color-star: #b7791f;
-  --color-footer: #0e2a20;
+  /* Brand palette (from the logo) */
+  --color-brand: #2b6a8c;
+  --color-brand-top: #3a80a6;
+  --color-brand-dark: #1b4f6b;
+  --color-navy: #0b2a3d;
+  --color-footer: #0a2536;
+  --color-teal: #3aa0a8;
+  --color-teal-deep: #1f7a83;
+  --color-gold: #f2bd3b;
+  --color-amber: #f2bd3b;
+  --color-star: #c08a14;
+  --color-leaf: #5c8a3e;
+  --color-leaf-tint: #e5efdb;
 
-  /* Legacy names kept so admin and shared components follow the new theme */
-  --color-ivory: #f6faf7;
-  --color-sand: #edf5f0;
-  --color-clay: #dde7e1;
-  --color-ocean: #0f7b4a;
-  --color-ocean-deep: #0a5a36;
-  --color-lagoon: #22a867;
-  --color-gold: #f2b84b;
-  --color-gold-light: #f6cd78;
-  --color-ochre: #0f7b4a;
+  /* Neutrals */
+  --color-ink: #10293a;
+  --color-ink-soft: #3c5565;
+  --color-stone: #566c7a;
+  --color-line: #dbe3e6;
+  --color-field: #c4d1d7;
+  --color-tint: #e1eff3;
+  --color-page: #faf8f3;
+  --color-band: #edf3f4;
+
+  /* Legacy names kept so the admin panel and older components follow the new theme */
+  --color-ivory: #faf8f3;
+  --color-sand: #edf3f4;
+  --color-clay: #dbe3e6;
+  --color-ocean: #2b6a8c;
+  --color-ocean-deep: #1b4f6b;
+  --color-lagoon: #3aa0a8;
+  --color-gold-light: #f6d27a;
+  --color-ochre: #8a5e0a;
   --color-coral: #e2725b;
 
   --color-sidebar-ring: var(--sidebar-ring);
@@ -84,11 +90,11 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 
-  --shadow-soft: 0 4px 22px rgb(16 33 26 / 0.08);
-  --shadow-lift: 0 6px 28px rgb(16 33 26 / 0.12);
-  --shadow-gold: 0 6px 24px rgb(242 184 75 / 0.3);
-  --shadow-card: 0 4px 22px rgb(16 33 26 / 0.08);
-  --shadow-panel: 0 6px 28px rgb(16 33 26 / 0.07);
+  --shadow-soft: 0 1px 2px rgb(16 41 58 / 0.05), 0 8px 24px -10px rgb(16 41 58 / 0.14);
+  --shadow-lift: 0 22px 44px -18px rgb(16 41 58 / 0.32);
+  --shadow-gold: 0 10px 24px -10px rgb(242 189 59 / 0.7);
+  --shadow-card: 0 1px 2px rgb(16 41 58 / 0.05), 0 10px 28px -12px rgb(16 41 58 / 0.16);
+  --shadow-panel: 0 14px 40px -16px rgb(16 41 58 / 0.24);
 
   --animate-slide-progress: slide-progress 6s linear forwards;
 
@@ -116,38 +122,38 @@
 }
 
 :root {
-  --background: #f6faf7;
-  --foreground: #10211a;
+  --background: #faf8f3;
+  --foreground: #10293a;
   --card: #ffffff;
-  --card-foreground: #10211a;
+  --card-foreground: #10293a;
   --popover: #ffffff;
-  --popover-foreground: #10211a;
-  --primary: #0f7b4a;
+  --popover-foreground: #10293a;
+  --primary: #2b6a8c;
   --primary-foreground: #ffffff;
-  --secondary: #e7f4ec;
-  --secondary-foreground: #10211a;
-  --muted: #edf5f0;
-  --muted-foreground: #5b6b63;
-  --accent: #e7f4ec;
-  --accent-foreground: #10211a;
+  --secondary: #e1eff3;
+  --secondary-foreground: #10293a;
+  --muted: #edf3f4;
+  --muted-foreground: #566c7a;
+  --accent: #e1eff3;
+  --accent-foreground: #10293a;
   --destructive: #b23d2a;
-  --border: #dde7e1;
-  --input: #cbd5e1;
-  --ring: #0f7b4a;
-  --chart-1: #0f7b4a;
-  --chart-2: #f2b84b;
+  --border: #dbe3e6;
+  --input: #c4d1d7;
+  --ring: #2b6a8c;
+  --chart-1: #2b6a8c;
+  --chart-2: #f2bd3b;
   --chart-3: #e2725b;
-  --chart-4: #22a867;
-  --chart-5: #8aa624;
+  --chart-4: #3aa0a8;
+  --chart-5: #5c8a3e;
   --radius: 0.875rem;
-  --sidebar: #edf5f0;
-  --sidebar-foreground: #10211a;
-  --sidebar-primary: #0f7b4a;
+  --sidebar: #edf3f4;
+  --sidebar-foreground: #10293a;
+  --sidebar-primary: #2b6a8c;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e7f4ec;
-  --sidebar-accent-foreground: #10211a;
-  --sidebar-border: #dde7e1;
-  --sidebar-ring: #0f7b4a;
+  --sidebar-accent: #e1eff3;
+  --sidebar-accent-foreground: #10293a;
+  --sidebar-border: #dbe3e6;
+  --sidebar-ring: #2b6a8c;
 }
 
 .dark {
@@ -200,97 +206,100 @@
   }
 
   ::selection {
-    background: rgb(34 168 103 / 0.25);
-    color: #10211a;
+    background: rgb(58 160 168 / 0.3);
+    color: #10293a;
   }
 }
 
 @layer components {
-  /* 3D pill button (DESIGN.md: Pill button) */
-  .btn-pill {
+  /* Buttons: soft-cornered rectangles, no 3D edge. */
+  .btn-primary,
+  .btn-gold,
+  .btn-light,
+  .btn-outline,
+  .btn-outline-light {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
     height: 3rem;
-    padding: 0 1.75rem;
-    border-radius: 999px;
-    background: linear-gradient(180deg, var(--color-brand-top), var(--color-brand));
-    box-shadow:
-      0 4px 0 var(--color-brand-edge),
-      0 8px 16px rgb(15 123 74 / 0.25);
-    color: #fff;
+    padding: 0 1.5rem;
+    border-radius: 0.875rem;
     font-size: 0.9375rem;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: 0.005em;
     white-space: nowrap;
     transition:
-      transform 0.12s ease,
-      box-shadow 0.12s ease,
-      filter 0.15s ease;
+      transform 0.15s ease,
+      box-shadow 0.15s ease,
+      background-color 0.15s ease,
+      color 0.15s ease;
   }
-  .btn-pill:hover {
-    filter: brightness(1.05);
+  .btn-primary:hover,
+  .btn-gold:hover,
+  .btn-light:hover {
+    transform: translateY(-1px);
   }
-  .btn-pill:active {
-    transform: translateY(2px);
-    box-shadow:
-      0 2px 0 var(--color-brand-edge),
-      0 4px 10px rgb(15 123 74 / 0.25);
+  .btn-primary:active,
+  .btn-gold:active,
+  .btn-light:active,
+  .btn-outline:active,
+  .btn-outline-light:active {
+    transform: translateY(1px);
   }
-  .btn-pill:disabled {
+  .btn-primary:disabled,
+  .btn-gold:disabled {
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: 0.55;
     transform: none;
   }
-  .btn-pill-sm {
-    height: 2.375rem;
-    padding: 0 1.25rem;
+  .btn-sm {
+    height: 2.5rem;
+    padding: 0 1.1rem;
     font-size: 0.875rem;
   }
-  /* White pill used inside the green CTA box */
-  .btn-pill-white {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 3rem;
-    padding: 0 1.875rem;
-    border-radius: 999px;
+  .btn-primary {
+    background: var(--color-brand);
+    color: #fff;
+    box-shadow: 0 10px 20px -10px rgb(43 106 140 / 0.75);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--color-brand-dark);
+  }
+  .btn-gold {
+    background: var(--color-gold);
+    color: var(--color-ink);
+    box-shadow: var(--shadow-gold);
+  }
+  .btn-gold:hover {
+    background: #f6cb62;
+  }
+  .btn-light {
     background: #fff;
-    box-shadow: 0 4px 0 rgb(6 67 42 / 0.35);
-    color: var(--color-brand);
-    font-size: 0.9375rem;
-    font-weight: 600;
-    transition: transform 0.12s ease;
+    color: var(--color-brand-dark);
+    box-shadow: 0 10px 20px -12px rgb(0 0 0 / 0.5);
   }
-  .btn-pill-white:active {
-    transform: translateY(2px);
-  }
-  .btn-outline-pill {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 2.875rem;
-    padding: 0 1.75rem;
-    border-radius: 999px;
-    border: 2px solid var(--color-brand);
-    color: var(--color-brand);
-    font-size: 0.9375rem;
-    font-weight: 600;
-    transition: background-color 0.15s ease;
-  }
-  .btn-outline-pill:hover {
+  .btn-light:hover {
     background: var(--color-tint);
   }
-  .text-gradient {
-    background: linear-gradient(90deg, #0f7b4a, #8aa624);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+  .btn-outline {
+    border: 2px solid var(--color-brand);
+    color: var(--color-brand);
+  }
+  .btn-outline:hover {
+    background: var(--color-tint);
+  }
+  .btn-outline-light {
+    border: 2px solid rgb(255 255 255 / 0.7);
+    color: #fff;
+  }
+  .btn-outline-light:hover {
+    background: rgb(255 255 255 / 0.14);
   }
   .field {
     height: 2.75rem;
     width: 100%;
-    border-radius: 10px;
+    border-radius: 0.75rem;
     border: 1px solid var(--color-field);
     background: #fff;
     padding: 0 0.75rem;
@@ -304,15 +313,16 @@
   }
   .field:focus-visible {
     border-color: var(--color-brand);
-    box-shadow: 0 0 0 3px rgb(15 123 74 / 0.18);
+    box-shadow: 0 0 0 3px rgb(43 106 140 / 0.2);
   }
   .field-label {
     display: flex;
     flex-direction: column;
     gap: 0.3125rem;
     font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--color-brand);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--color-brand-dark);
   }
   .zoom-img img {
     transition: transform 0.5s ease;

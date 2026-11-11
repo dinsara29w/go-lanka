@@ -45,7 +45,7 @@ type TourResult = {
 const inputClass = "field mt-1.5 placeholder:text-stone/70";
 const labelClass = "text-xs font-semibold text-brand";
 const cardClass = "rounded-[1.125rem] border border-line bg-white p-5 shadow-card sm:p-6";
-const stepHeadingClass = "font-heading text-[1.625rem] font-bold text-ink";
+const stepHeadingClass = "font-heading text-[1.625rem] font-semibold text-ink";
 
 function monthOptions() {
   const formatter = new Intl.DateTimeFormat("en", { month: "long", timeZone: "UTC" });
@@ -220,7 +220,7 @@ export function TourBuilderExperience({
     return (
       <div className="mx-auto max-w-2xl rounded-2xl border border-dashed border-line bg-white p-8 text-center text-sm leading-6 text-stone">
         <p>{strings.tourBuilder.fallback}</p>
-        <Link href="/contact" className="btn-outline-pill mt-4">
+        <Link href="/contact" className="btn-outline mt-4">
           {strings.nav.contact}
         </Link>
       </div>
@@ -247,7 +247,7 @@ export function TourBuilderExperience({
                   aria-pressed={selected}
                   onClick={() => toggleLocation(destination.slug)}
                   className={cn(
-                    "zoom-img relative block h-44 overflow-hidden rounded-2xl text-left shadow-[0_4px_22px_rgba(16,33,26,0.1)] transition-shadow sm:h-[14.375rem]",
+                    "zoom-img relative block h-44 overflow-hidden rounded-2xl text-left shadow-[0_4px_22px_rgba(11,42,61,0.1)] transition-shadow sm:h-[14.375rem]",
                     selected ? "ring-4 ring-brand ring-offset-2 ring-offset-page" : "",
                   )}
                 >
@@ -264,7 +264,7 @@ export function TourBuilderExperience({
                   )}
                   <span
                     aria-hidden="true"
-                    className="absolute inset-0 bg-[linear-gradient(0deg,rgba(16,33,26,0.8),rgba(16,33,26,0)_55%)]"
+                    className="absolute inset-0 bg-[linear-gradient(0deg,rgba(11,42,61,0.8),rgba(11,42,61,0)_55%)]"
                   />
                   {selected ? (
                     <span className="absolute top-3 right-3 flex size-7 items-center justify-center rounded-full bg-brand text-white shadow">
@@ -272,7 +272,7 @@ export function TourBuilderExperience({
                     </span>
                   ) : null}
                   <span className="absolute inset-x-4 bottom-4 text-white">
-                    <span className="block font-heading text-lg leading-tight font-bold">
+                    <span className="block font-heading text-lg leading-tight font-semibold">
                       {destination.name}
                     </span>
                     {destination.region ? (
@@ -510,7 +510,7 @@ export function TourBuilderExperience({
       <aside className="lg:sticky lg:top-24">
         <div className={cn(cardClass, "space-y-5 shadow-panel")}>
           <div>
-            <h2 className="font-heading text-[1.375rem] font-bold text-ink">
+            <h2 className="font-heading text-[1.375rem] font-semibold text-ink">
               {strings.tourBuilder.yourTrip}
             </h2>
             <p className="mt-2 text-sm text-stone" aria-live="polite">
@@ -529,7 +529,7 @@ export function TourBuilderExperience({
                       type="button"
                       onClick={() => toggleLocation(destination.slug)}
                       aria-label={`${strings.tourBuilder.remove} ${destination.name}`}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-tint px-3.5 py-1.5 text-sm font-semibold text-brand hover:bg-[#D3ECDD]"
+                      className="inline-flex items-center gap-1.5 rounded-full bg-tint px-3.5 py-1.5 text-sm font-semibold text-brand hover:bg-[#CFE4EC]"
                     >
                       {destination.name}
                       <X aria-hidden="true" className="size-3.5" />
@@ -586,7 +586,7 @@ export function TourBuilderExperience({
             type="button"
             onClick={submit}
             disabled={building || !siteKey || !token || locations.length === 0}
-            className="btn-pill w-full"
+            className="btn-primary w-full"
           >
             {building ? strings.tourBuilder.building : strings.tourBuilder.submit}
           </button>
@@ -647,7 +647,7 @@ function TourResultView({
         <p className="text-xs font-semibold tracking-[0.16em] text-brand uppercase">
           {strings.tourBuilder.resultHeading}
         </p>
-        <h2 className="font-heading text-3xl font-extrabold tracking-[-0.02em] text-ink">
+        <h2 className="font-heading text-3xl font-semibold tracking-[-0.02em] text-ink">
           {result.itinerary.title}
         </h2>
         <p className="max-w-3xl text-sm leading-7 text-muted-foreground">
@@ -702,7 +702,7 @@ function TourResultView({
                   : ""}
               </p>
             </div>
-            <h3 className="mt-2 font-heading text-xl font-bold text-ink">{day.title}</h3>
+            <h3 className="mt-2 font-heading text-xl font-semibold text-ink">{day.title}</h3>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">{day.notes}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {day.activities.map((activity) => (
@@ -732,7 +732,7 @@ function TourResultView({
         {strings.tourBuilder.noPricingNote}
       </p>
 
-      <button type="button" className="btn-outline-pill" onClick={onStartOver}>
+      <button type="button" className="btn-outline" onClick={onStartOver}>
         {strings.tourBuilder.startOver}
       </button>
     </div>
@@ -768,7 +768,7 @@ function QuoteContactForm({
   if (sent) {
     return (
       <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-emerald-950">
-        <h3 className="font-heading text-xl font-bold text-ink">
+        <h3 className="font-heading text-xl font-semibold text-ink">
           {strings.tourBuilder.contactSuccess}
         </h3>
         <p className="mt-2 text-sm leading-6">{strings.tourBuilder.contactSuccessBody}</p>
@@ -823,7 +823,7 @@ function QuoteContactForm({
 
   return (
     <section className="rounded-[1.125rem] border border-line bg-white p-5 shadow-card sm:p-6">
-      <h3 className="font-heading text-xl font-bold text-ink">
+      <h3 className="font-heading text-xl font-semibold text-ink">
         {strings.tourBuilder.contactHeading}
       </h3>
       <p className="mt-1 text-sm leading-6 text-muted-foreground">
@@ -924,7 +924,7 @@ function QuoteContactForm({
           </p>
         ) : null}
 
-        <button type="submit" className="btn-pill" disabled={submitting || !token}>
+        <button type="submit" className="btn-primary" disabled={submitting || !token}>
           {submitting ? strings.tourBuilder.contactSending : strings.tourBuilder.contactSubmit}
         </button>
       </form>

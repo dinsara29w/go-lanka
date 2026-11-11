@@ -87,7 +87,7 @@ export default async function PhotosPage({
               return (
                 <figure
                   key={photo.id}
-                  className="relative mb-4 break-inside-avoid overflow-hidden rounded-2xl shadow-[0_4px_22px_rgba(16,33,26,0.1)]"
+                  className="relative mb-4 break-inside-avoid overflow-hidden rounded-2xl shadow-[0_4px_22px_rgba(11,42,61,0.1)]"
                 >
                   <Image
                     src={`/photos/${photo.id}`}
@@ -98,7 +98,7 @@ export default async function PhotosPage({
                     className="h-auto w-full"
                   />
                   {photo.caption || journeyTitle ? (
-                    <figcaption className="absolute inset-x-0 bottom-0 bg-[linear-gradient(0deg,rgba(16,33,26,0.8),rgba(16,33,26,0))] px-3.5 pt-10 pb-3.5 text-sm text-white">
+                    <figcaption className="absolute inset-x-0 bottom-0 bg-[linear-gradient(0deg,rgba(11,42,61,0.8),rgba(11,42,61,0))] px-3.5 pt-10 pb-3.5 text-sm text-white">
                       {photo.caption}
                       {journeyTitle ? (
                         <span className="mt-0.5 block text-xs font-semibold text-amber">
@@ -114,7 +114,7 @@ export default async function PhotosPage({
         )}
 
         <section className="mt-12 rounded-2xl border border-line bg-white p-6 shadow-card sm:p-8">
-          <h2 className="font-heading text-2xl font-bold text-ink">
+          <h2 className="font-heading text-2xl font-semibold text-ink">
             {strings.photos.submitHeading}
           </h2>
           <p className="mt-1.5 text-sm leading-6 text-stone">{strings.photos.submitIntro}</p>

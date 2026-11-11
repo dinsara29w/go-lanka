@@ -188,7 +188,7 @@ export function BookingSection({
         id="booking"
         className="scroll-mt-24 rounded-2xl border border-dashed border-line bg-white p-6"
       >
-        <h2 className="font-heading text-2xl font-bold text-ink">{strings.booking.heading}</h2>
+        <h2 className="font-heading text-2xl font-semibold text-ink">{strings.booking.heading}</h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
           {strings.booking.noAvailability}
         </p>
@@ -205,7 +205,7 @@ export function BookingSection({
       className="scroll-mt-24 rounded-2xl border border-line bg-white p-5 shadow-card sm:p-7"
     >
       <div className="max-w-2xl space-y-2">
-        <h2 className="font-heading text-2xl font-bold text-ink">{strings.booking.heading}</h2>
+        <h2 className="font-heading text-2xl font-semibold text-ink">{strings.booking.heading}</h2>
         <p className="text-sm leading-6 text-muted-foreground">{strings.booking.intro}</p>
       </div>
 
@@ -475,7 +475,7 @@ export function BookingSection({
 
           <button
             type="submit"
-            className="btn-pill w-full"
+            className="btn-primary w-full"
             disabled={
               submitting ||
               !turnstileToken ||

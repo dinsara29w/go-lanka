@@ -25,7 +25,7 @@ export function CurrencySwitcher() {
       <select
         value={value}
         onChange={(event) => change(event.target.value as Currency)}
-        className="h-8 rounded-lg border border-line bg-[#EEF2F6] px-2 text-[0.8125rem] text-ink-soft outline-none focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-brand"
+        className="h-10 rounded-xl border border-line bg-white px-2.5 text-[0.8125rem] font-semibold text-ink-soft outline-none focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-brand"
       >
         {CURRENCIES.map((item) => (
           <option key={item} value={item}>

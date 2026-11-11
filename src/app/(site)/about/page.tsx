@@ -9,7 +9,7 @@ import { strings } from "@/content/strings";
 
 export const metadata: Metadata = {
   title: "About",
-  description: "Learn about the local team behind Sri Lanka Tours.",
+  description: "Learn about the local team behind Go Lanka.",
   alternates: { canonical: "/about" },
 };
 
@@ -27,13 +27,13 @@ export default function AboutPage() {
 
       <section className="mx-auto grid max-w-[60rem] items-center gap-10 px-4 pt-14 sm:px-6 md:grid-cols-2 lg:px-0">
         <div>
-          <h2 className="font-heading text-[2rem] font-extrabold tracking-[-0.02em] text-ink">
+          <h2 className="font-heading text-[2rem] font-semibold tracking-[-0.02em] text-ink">
             {strings.about.storyTitle}
           </h2>
           <p className="mt-4 text-[0.9375rem] leading-relaxed text-stone">
             {strings.about.storyBody}
           </p>
-          <Link href="/contact" className="btn-pill mt-6">
+          <Link href="/contact" className="btn-primary mt-6">
             {strings.about.cta}
           </Link>
         </div>
@@ -65,7 +65,7 @@ export default function AboutPage() {
                 <span className="flex size-[3.25rem] items-center justify-center rounded-xl bg-tint text-brand">
                   <Icon aria-hidden="true" className="size-5" strokeWidth={1.9} />
                 </span>
-                <h3 className="mt-5 font-heading text-[1.0625rem] font-bold text-ink">
+                <h3 className="mt-5 font-heading text-[1.0625rem] font-semibold text-ink">
                   {item.title}
                 </h3>
                 <p className="mt-1.5 text-sm leading-relaxed text-stone">{item.description}</p>
@@ -87,10 +87,10 @@ export default function AboutPage() {
               key={step.title}
               className="rounded-2xl border border-line bg-white p-6 shadow-card"
             >
-              <span className="flex size-9 items-center justify-center rounded-full bg-[linear-gradient(180deg,#22A867,#0F7B4A)] text-sm font-bold text-white shadow-[0_3px_0_#06432A]">
+              <span className="flex size-9 items-center justify-center rounded-full bg-brand text-sm font-bold text-white">
                 {index + 1}
               </span>
-              <h3 className="mt-4 font-heading text-[1.0625rem] font-bold text-ink">
+              <h3 className="mt-4 font-heading text-[1.0625rem] font-semibold text-ink">
                 {step.title}
               </h3>
               <p className="mt-1.5 text-sm leading-relaxed text-stone">{step.description}</p>

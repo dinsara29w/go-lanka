@@ -190,7 +190,7 @@ async function PackageCatalogue({ filters }: { filters: PackageFilters }) {
             </AutoSubmitSelect>
           </label>
           <noscript>
-            <button type="submit" className="btn-outline-pill h-10 px-4 text-sm">
+            <button type="submit" className="btn-outline h-10 px-4 text-sm">
               {strings.packages.applyFilters}
             </button>
           </noscript>

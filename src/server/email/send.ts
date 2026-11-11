@@ -62,7 +62,7 @@ export async function sendEmail(
     path.join(outbox, `${new Date().toISOString().replaceAll(":", "-")}-${id}.json`),
     JSON.stringify(
       {
-        from: from ?? "Sri Lanka Tours <dev@localhost>",
+        from: from ?? "Go Lanka <dev@localhost>",
         ...message,
       },
       null,

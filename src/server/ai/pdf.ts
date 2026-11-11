@@ -27,8 +27,8 @@ const MARGIN = 48;
 const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
 const INK = rgb(0.12, 0.16, 0.2);
 const MUTED = rgb(0.42, 0.46, 0.5);
-const ACCENT = rgb(0.16, 0.38, 0.28);
-const LIGHT = rgb(0.94, 0.96, 0.94);
+const ACCENT = rgb(0.17, 0.42, 0.55);
+const LIGHT = rgb(0.91, 0.95, 0.96);
 
 function safeText(value: string): string {
   return value
@@ -83,9 +83,9 @@ export async function generateItineraryPdf(input: {
   );
 
   pdf.setTitle(safeText(input.itinerary.title));
-  pdf.setAuthor("Sri Lanka Tours");
+  pdf.setAuthor("Go Lanka");
   pdf.setSubject(`Quotation ${input.reference}`);
-  pdf.setCreator("Sri Lanka Tours tour builder");
+  pdf.setCreator("Go Lanka tour builder");
 
   let page = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   let y = PAGE_HEIGHT - MARGIN;
@@ -97,19 +97,19 @@ export async function generateItineraryPdf(input: {
     height: 190,
     color: ACCENT,
   });
-  page.drawText("SRI LANKA TOURS", {
+  page.drawText("GO LANKA", {
     x: MARGIN,
     y: PAGE_HEIGHT - 62,
     size: 11,
     font: bold,
-    color: rgb(0.85, 0.93, 0.88),
+    color: rgb(0.87, 0.94, 0.97),
   });
   page.drawText(input.reference, {
     x: PAGE_WIDTH - MARGIN - 100,
     y: PAGE_HEIGHT - 62,
     size: 11,
     font: bold,
-    color: rgb(0.85, 0.93, 0.88),
+    color: rgb(0.87, 0.94, 0.97),
   });
   const titleLines = wrapText(input.itinerary.title, bold, 26, CONTENT_WIDTH);
   titleLines.slice(0, 3).forEach((line, index) => {

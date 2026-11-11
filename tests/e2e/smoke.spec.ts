@@ -14,7 +14,7 @@ test("public shell loads with security headers", async ({ page, request }) => {
   expect(headers["set-cookie"]).toBeUndefined();
 
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Sri Lanka Journeys");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Your Sri Lanka");
 });
 
 test("mobile shell has no horizontal overflow", async ({ page }) => {
@@ -64,7 +64,7 @@ test("sitemap is available", async ({ request }) => {
 test("llms.txt and security.txt are available", async ({ request }) => {
   const llms = await request.get("/llms.txt");
   expect(llms.status()).toBe(200);
-  expect(await llms.text()).toContain("# Sri Lanka Tours");
+  expect(await llms.text()).toContain("# Go Lanka");
 
   const security = await request.get("/.well-known/security.txt");
   expect(security.status()).toBe(200);
