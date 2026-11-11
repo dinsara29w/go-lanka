@@ -1,4 +1,4 @@
-# Go Lanka — Sri Lanka Tours Platform
+# Go Lanka — tour-booking platform
 
 Custom, security-first tour-booking platform. No BaaS: the backend is application code backed by PostgreSQL.
 
@@ -14,6 +14,13 @@ Custom, security-first tour-booking platform. No BaaS: the backend is applicatio
 - [Incident response](./docs/incident-response.md)
 - [AI tour builder and PDF notes](./docs/ai-tour-builder.md)
 - [Original brief](./instructions.md)
+
+## Brand and design
+
+- **Name:** Go Lanka (`SITE_NAME` in `src/lib/site.ts`, UI text in `src/content/strings.ts`).
+- **Logo:** `public/brand/golanka-logo.svg`, a transparent vector traced from the client's artwork. It is used in the header and footer through `src/components/brand/logo.tsx`. If the client has the original vector file, replace this one.
+- **Favicons and share image:** `src/app/icon.svg`, `src/app/favicon.ico` and `src/app/apple-icon.png` (the compass badge and the full logo), plus `src/app/opengraph-image.png` for link previews. Next.js adds the tags automatically.
+- **Colours and fonts:** the palette comes from the logo (steel blue, teal, sun gold, palm green on cream) and lives in `src/app/globals.css`. Headings use Fraunces and body text uses Manrope (`src/app/layout.tsx`).
 
 ## Requirements
 

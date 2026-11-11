@@ -1,8 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 
-import { Wordmark } from "@/components/layout/wordmark";
-import { siteImages } from "@/content/site-images";
+import { Logo } from "@/components/brand/logo";
+import { CompassWatermark } from "@/components/brand/compass";
 import { strings } from "@/content/strings";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import type { SiteSettings } from "@/server/repositories/site-settings";
@@ -21,8 +20,8 @@ const companyLinks = [
   { href: "/travel-info", label: strings.nav.travelInfo },
 ];
 
-const headingClass = "text-xs font-bold tracking-[0.08em] text-amber uppercase";
-const linkClass = "w-fit transition-colors hover:text-white";
+const headingClass = "mb-1 font-heading text-base font-semibold text-white";
+const linkClass = "w-fit text-white/70 transition-colors hover:text-gold";
 
 export function SiteFooter({ settings }: { settings: SiteSettings | null }) {
   const socials = Object.entries(settings?.socials ?? {});
@@ -32,25 +31,25 @@ export function SiteFooter({ settings }: { settings: SiteSettings | null }) {
   const hasContact = Boolean(settings?.contactEmail || settings?.phone);
 
   return (
-    <footer className="relative isolate overflow-hidden bg-footer text-sm text-[#CBD5E1]">
-      <Image
-        src={siteImages.galle.src}
-        alt=""
-        fill
-        sizes="100vw"
-        className="-z-10 object-cover opacity-[0.18]"
+    <footer className="relative isolate overflow-hidden bg-footer text-sm text-white/75">
+      {/* Thin strip in the logo's teal, sun and palm colours */}
+      <div
+        aria-hidden="true"
+        className="h-1 w-full bg-[linear-gradient(90deg,var(--color-teal),var(--color-gold),var(--color-leaf))]"
       />
-      <div className="mx-auto max-w-[65rem] px-4 pt-14 pb-6 sm:px-6 lg:px-0">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))]">
-          <div className="flex max-w-xs flex-col gap-3 sm:col-span-2 lg:col-span-1">
-            <Wordmark inverted className="w-fit" />
+      <CompassWatermark className="absolute -right-28 -bottom-32 -z-10 size-[30rem] text-white/6" />
+
+      <div className="mx-auto max-w-[75rem] px-4 pt-14 pb-8 sm:px-6">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,1fr))]">
+          <div className="flex max-w-xs flex-col gap-4 sm:col-span-2 lg:col-span-1">
+            <Logo inverted size={64} className="w-fit" />
             <p className="leading-relaxed">{strings.site.tagline}</p>
             {whatsappHref ? (
               <a
                 href={whatsappHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-fit text-amber hover:underline"
+                className="w-fit font-semibold text-gold hover:underline"
               >
                 {strings.site.whatsappPrefix} · {settings?.whatsappNumber}
               </a>
@@ -100,7 +99,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings | null }) {
                     href={url}
                     target="_blank"
                     rel="noreferrer"
-                    className="transition-colors hover:text-amber"
+                    className="text-white/70 transition-colors hover:text-gold"
                   >
                     {label.charAt(0).toUpperCase() + label.slice(1)}
                   </a>
@@ -110,7 +109,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings | null }) {
           </div>
         </div>
 
-        <div className="mt-9 flex flex-col gap-2 border-t border-[#CBD5E1]/20 pt-[1.125rem] text-[0.8125rem] sm:flex-row sm:justify-between">
+        <div className="mt-10 flex flex-col gap-2 border-t border-white/10 pt-5 text-[0.8125rem] text-white/60 sm:flex-row sm:justify-between">
           <p>
             © {new Date().getFullYear()} {strings.common.siteName}. {strings.footer.copyright}
           </p>

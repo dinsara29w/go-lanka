@@ -3,6 +3,7 @@ import { cn } from "cn";
 
 import { Stars } from "@/components/site/section";
 
+/** A guest review: stars, serif quote, initial avatar. */
 export function QuoteCard({
   rating,
   body,
@@ -10,6 +11,7 @@ export function QuoteCard({
   country,
   title,
   journey,
+  className,
 }: {
   rating: number;
   body: string;
@@ -17,30 +19,51 @@ export function QuoteCard({
   country: string | null;
   title?: string | null;
   journey?: { title: string; slug: string };
+  className?: string;
 }) {
   return (
-    <figure className="flex flex-col gap-3.5 rounded-2xl border border-line bg-white px-[1.375rem] pt-[1.375rem] pb-5">
+    <figure
+      className={cn(
+        "relative flex flex-col gap-3.5 overflow-hidden rounded-3xl border border-line bg-white p-6 shadow-card",
+        className,
+      )}
+    >
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-2 right-5 font-heading text-[5.5rem] leading-none text-tint select-none"
+      >
+        ”
+      </span>
       <Stars rating={rating} />
-      {title ? <p className="font-heading text-[0.9375rem] font-bold text-ink">{title}</p> : null}
-      <blockquote className="text-[0.9375rem] leading-relaxed text-[#34443C] italic">
-        “{body}”
+      {title ? <p className="font-heading text-base font-semibold text-ink">{title}</p> : null}
+      <blockquote className="font-heading text-[1.0625rem] leading-relaxed text-ink">
+        {body}
       </blockquote>
-      <figcaption className="mt-auto border-t border-line pt-3.5 text-sm">
-        <b className="text-ink">{name}</b>
-        {country ? <span className="text-stone/70"> {country}</span> : null}
-        {journey ? (
-          <Link
-            href={`/packages/${journey.slug}`}
-            className="mt-1 block text-xs font-semibold text-brand hover:underline"
-          >
-            {journey.title}
-          </Link>
-        ) : null}
+      <figcaption className="mt-auto flex items-center gap-3 pt-2">
+        <span
+          aria-hidden="true"
+          className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand text-sm font-bold text-white"
+        >
+          {name.trim().charAt(0).toUpperCase()}
+        </span>
+        <span className="min-w-0 text-sm leading-tight">
+          <b className="block text-ink">{name}</b>
+          {country ? <span className="text-stone">{country}</span> : null}
+          {journey ? (
+            <Link
+              href={`/packages/${journey.slug}`}
+              className="mt-0.5 block text-xs font-semibold text-brand hover:underline"
+            >
+              {journey.title}
+            </Link>
+          ) : null}
+        </span>
       </figcaption>
     </figure>
   );
 }
 
+/** Accordion list; the first question starts open. */
 export function FaqList({
   faqs,
   className,
@@ -54,24 +77,18 @@ export function FaqList({
         <details
           key={faq.question}
           open={index === 0}
-          className="group rounded-[0.875rem] border border-line bg-white px-[1.375rem]"
+          className="group rounded-2xl border border-line bg-white px-5 transition-colors open:border-brand/40 open:shadow-card"
         >
-          <summary className="flex min-h-[3.375rem] cursor-pointer list-none items-center justify-between gap-4 font-heading text-[0.9375rem] font-semibold text-ink [&::-webkit-details-marker]:hidden">
+          <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 text-[0.9375rem] font-bold text-ink [&::-webkit-details-marker]:hidden">
             {faq.question}
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#0F7B4A"
-              strokeWidth="2.5"
+            <span
               aria-hidden="true"
-              className="shrink-0 transition-transform group-open:rotate-180"
+              className="flex size-8 shrink-0 items-center justify-center rounded-full bg-tint text-lg leading-none font-semibold text-brand transition-transform duration-200 group-open:rotate-45"
             >
-              <path d="M6 9l6 6 6-6" />
-            </svg>
+              +
+            </span>
           </summary>
-          <p className="pb-[1.125rem] text-sm leading-relaxed text-stone">{faq.answer}</p>
+          <p className="pb-5 text-sm leading-relaxed text-stone">{faq.answer}</p>
         </details>
       ))}
     </div>

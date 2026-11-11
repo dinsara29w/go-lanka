@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: "Contact the Sri Lanka Tours team to ask a question or plan a custom trip.",
+  description: "Contact the Go Lanka team to ask a question or plan a custom trip.",
   alternates: { canonical: "/contact" },
 };
 
@@ -67,14 +67,14 @@ export default async function ContactPage() {
 
       <div className="mx-auto grid max-w-[60rem] gap-7 px-4 pt-10 pb-20 sm:px-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:items-start lg:px-0">
         <section className="rounded-[1.125rem] border border-line bg-white p-6 shadow-panel sm:p-8">
-          <h2 className="mb-5 font-heading text-[1.625rem] font-bold text-ink">
+          <h2 className="mb-5 font-heading text-[1.625rem] font-semibold text-ink">
             {strings.contact.formHeading}
           </h2>
           <ContactForm siteKey={siteKey} />
         </section>
 
         <aside className="rounded-[1.125rem] border border-line bg-white p-6 shadow-panel sm:p-8">
-          <h2 className="font-heading text-[1.375rem] font-bold text-ink">
+          <h2 className="font-heading text-[1.375rem] font-semibold text-ink">
             {strings.contact.directHeading}
           </h2>
           {!hasDirectDetails ? (
@@ -97,7 +97,7 @@ export default async function ContactPage() {
                       </span>
                       <span className="min-w-0">
                         <span className="block text-[0.8125rem] text-stone">{row.label}</span>
-                        <span className="block font-heading text-[1.0625rem] font-bold break-all text-ink group-hover:text-brand">
+                        <span className="block font-heading text-[1.0625rem] font-semibold break-all text-ink group-hover:text-brand">
                           {row.value}
                         </span>
                       </span>

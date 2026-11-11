@@ -155,7 +155,7 @@ export function PhotoSubmissionForm({
 
       <button
         type="submit"
-        className="btn-pill"
+        className="btn-primary"
         disabled={submitting || !file || !consent || !token}
       >
         {submitting ? strings.photos.sending : strings.photos.submit}

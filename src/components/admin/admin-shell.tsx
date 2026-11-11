@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { logoutAction } from "@/app/admin/actions";
+import { LogoMark } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { strings } from "@/content/strings";
 import type { CurrentSession } from "@/server/auth/sessions";
@@ -42,9 +43,15 @@ export function AdminShell({
       <header className="border-b border-border bg-background">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center justify-between gap-4">
-            <Link href="/admin" className="font-heading text-lg font-semibold">
-              {strings.common.siteName}{" "}
-              <span className="text-muted-foreground">/ {strings.admin.area}</span>
+            <Link
+              href="/admin"
+              className="flex items-center gap-2.5 font-heading text-lg font-semibold"
+            >
+              <LogoMark size={36} />
+              <span>
+                {strings.common.siteName}{" "}
+                <span className="text-muted-foreground">/ {strings.admin.area}</span>
+              </span>
             </Link>
             <Link
               href="/"

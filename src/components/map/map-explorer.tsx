@@ -117,8 +117,8 @@ export function MapExplorer({ destinations }: { destinations: MapDestination[] }
                     selected
                       ? "fill-brand stroke-white"
                       : count > 0
-                        ? "fill-[#BFE3CC] stroke-brand/70 hover:fill-amber/70"
-                        : "fill-[#DCEFE3] stroke-brand/40 hover:fill-[#BFE3CC]",
+                        ? "fill-[#BFE0E3] stroke-brand/70 hover:fill-amber/70"
+                        : "fill-[#E4EEF1] stroke-brand/40 hover:fill-[#BFE0E3]",
                   )}
                 >
                   <title>{region.name}</title>
@@ -132,7 +132,7 @@ export function MapExplorer({ destinations }: { destinations: MapDestination[] }
         <div aria-live="polite">
           {filterLabel ? (
             <div className="mb-3 flex items-center justify-between gap-3">
-              <p className="font-heading text-[1.0625rem] font-bold text-ink">{filterLabel}</p>
+              <p className="font-heading text-[1.0625rem] font-semibold text-ink">{filterLabel}</p>
               <button
                 type="button"
                 onClick={clearFilters}
@@ -181,7 +181,7 @@ export function MapExplorer({ destinations }: { destinations: MapDestination[] }
                         />
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block font-heading text-[1.0625rem] font-bold text-ink">
+                        <span className="block font-heading text-[1.0625rem] font-semibold text-ink">
                           {destination.name}
                         </span>
                         <span className="mt-0.5 line-clamp-2 block text-[0.8125rem] leading-normal text-stone">
@@ -257,7 +257,7 @@ export function MapExplorer({ destinations }: { destinations: MapDestination[] }
                   key={region.name}
                   type="button"
                   onClick={() => showRegion(region.name)}
-                  className="zoom-img relative block h-48 w-[calc(50%-0.5rem)] overflow-hidden rounded-2xl text-left lg:w-[calc(25%-0.75rem)] shadow-[0_4px_22px_rgba(16,33,26,0.1)] sm:h-[13.75rem]"
+                  className="zoom-img relative block h-48 w-[calc(50%-0.5rem)] overflow-hidden rounded-2xl text-left lg:w-[calc(25%-0.75rem)] shadow-[0_4px_22px_rgba(11,42,61,0.1)] sm:h-[13.75rem]"
                 >
                   <Image
                     src={image.src}
@@ -268,10 +268,10 @@ export function MapExplorer({ destinations }: { destinations: MapDestination[] }
                   />
                   <span
                     aria-hidden="true"
-                    className="absolute inset-0 bg-[linear-gradient(0deg,rgba(16,33,26,0.8),rgba(16,33,26,0)_55%)]"
+                    className="absolute inset-0 bg-[linear-gradient(0deg,rgba(11,42,61,0.8),rgba(11,42,61,0)_55%)]"
                   />
                   <span className="absolute inset-x-4 bottom-4 text-white">
-                    <span className="block font-heading text-lg font-bold">{region.name}</span>
+                    <span className="block font-heading text-lg font-semibold">{region.name}</span>
                     <span className="mt-0.5 line-clamp-2 block text-xs text-white/85">
                       {region.items.map((item) => item.name).join(", ")}
                     </span>

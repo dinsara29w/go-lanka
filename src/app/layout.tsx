@@ -1,22 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Sans, Plus_Jakarta_Sans } from "next/font/google";
+import { Fraunces, Manrope } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { getSiteUrl, SITE_NAME } from "@/lib/site";
 
 import "./globals.css";
 
-const jakarta = Plus_Jakarta_Sans({
+const fraunces = Fraunces({
   subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
-  variable: "--font-jakarta",
+  style: ["normal", "italic"],
+  variable: "--font-fraunces",
   display: "swap",
 });
 
-const dmSans = DM_Sans({
+const manrope = Manrope({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-dm-sans",
+  variable: "--font-manrope",
   display: "swap",
 });
 
@@ -56,12 +55,12 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0f7b4a",
+  themeColor: "#2b6a8c",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${jakarta.variable} ${dmSans.variable}`}>
+    <html lang="en" className={`${fraunces.variable} ${manrope.variable}`}>
       <body className="min-h-dvh text-foreground antialiased">{children}</body>
     </html>
   );

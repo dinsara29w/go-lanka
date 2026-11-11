@@ -72,7 +72,7 @@ Rotating `MFA_ENCRYPTION_KEY` without re-encrypting existing MFA secrets will lo
 ## Known limitations
 
 - Structured hotel/meal catalogues are not yet modelled.
-- PDF branding is neutral.
+- PDF branding uses the brand name and colours but not the logo image yet.
 - Live AI requires a DeepSeek API key with credit.
 - No analytics provider is configured.
 - Single VPS, no high availability.

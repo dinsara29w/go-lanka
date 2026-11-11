@@ -19,7 +19,7 @@ export async function GET() {
     "",
     `> ${strings.home.description}`,
     "",
-    "Sri Lanka Tours is a local tour operator planning custom and published journeys across Sri Lanka. The team handles enquiries directly; there is no third-party commission platform and no online payment in this version.",
+    "Go Lanka is a local tour operator planning custom and published journeys across Sri Lanka. The team handles enquiries directly; there is no third-party commission platform and no online payment in this version.",
     "",
     "## Core pages",
     `- [Home](${baseUrl}/)`,

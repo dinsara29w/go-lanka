@@ -131,7 +131,7 @@ export default async function PackageDetailPage({ params }: { params: Promise<{ 
           </ul>
 
           <section className="mt-8">
-            <h2 className="font-heading text-[1.625rem] font-bold text-ink">
+            <h2 className="font-heading text-[1.625rem] font-semibold text-ink">
               {strings.packages.overview}
             </h2>
             {item.destinations.length > 0 ? (
@@ -160,7 +160,7 @@ export default async function PackageDetailPage({ params }: { params: Promise<{ 
           </section>
 
           <section className="mt-10">
-            <h2 className="font-heading text-[1.625rem] font-bold text-ink">
+            <h2 className="font-heading text-[1.625rem] font-semibold text-ink">
               {strings.packages.itineraryHeading}
             </h2>
             {item.itinerary.length === 0 ? (
@@ -173,12 +173,12 @@ export default async function PackageDetailPage({ params }: { params: Promise<{ 
                       <span className="text-[0.625rem] font-semibold uppercase">
                         {strings.packages.dayLabel}
                       </span>
-                      <span className="font-heading text-lg leading-none font-extrabold">
+                      <span className="font-heading text-lg leading-none font-semibold">
                         {day.dayNumber}
                       </span>
                     </span>
                     <div className="min-w-0">
-                      <h3 className="font-heading text-[1.0625rem] font-bold text-ink">
+                      <h3 className="font-heading text-[1.0625rem] font-semibold text-ink">
                         {day.title}
                       </h3>
                       <p className="mt-1 text-sm leading-relaxed text-stone">{day.description}</p>
@@ -226,7 +226,7 @@ export default async function PackageDetailPage({ params }: { params: Promise<{ 
           {travellerPhotos.length > 0 ? (
             <section className="mt-10">
               <div className="flex flex-wrap items-end justify-between gap-2">
-                <h2 className="font-heading text-[1.625rem] font-bold text-ink">
+                <h2 className="font-heading text-[1.625rem] font-semibold text-ink">
                   {strings.photos.heading}
                 </h2>
                 <Link href="/photos" className="text-sm font-semibold text-brand hover:underline">
@@ -251,7 +251,7 @@ export default async function PackageDetailPage({ params }: { params: Promise<{ 
 
           {reviews.length > 0 ? (
             <section className="mt-10">
-              <h2 className="font-heading text-[1.625rem] font-bold text-ink">
+              <h2 className="font-heading text-[1.625rem] font-semibold text-ink">
                 {strings.reviews.heading}
               </h2>
               <p className="mt-2 flex items-center gap-3 text-sm text-stone">
@@ -277,7 +277,7 @@ export default async function PackageDetailPage({ params }: { params: Promise<{ 
           ) : null}
 
           <section className="mt-10">
-            <h2 className="font-heading text-[1.625rem] font-bold text-ink">
+            <h2 className="font-heading text-[1.625rem] font-semibold text-ink">
               {strings.travelInfo.faqHeading}
             </h2>
             <FaqList faqs={packageFaqs} className="mt-4 max-w-none" />
@@ -287,11 +287,11 @@ export default async function PackageDetailPage({ params }: { params: Promise<{ 
         <aside className="-order-1 lg:sticky lg:top-24 lg:order-none lg:self-start">
           <div className="rounded-2xl border border-line bg-white p-6 shadow-panel">
             <p className="text-xs text-stone">{strings.site.from}</p>
-            <p className="mt-1 font-heading text-[2rem] leading-tight font-extrabold text-brand">
+            <p className="mt-1 font-heading text-[2rem] leading-tight font-semibold text-brand">
               <Price amountLkr={item.basePriceLkr} />
             </p>
             <p className="mt-2 text-xs leading-5 text-stone">{strings.currency.indicativeNote}</p>
-            <a href="#booking" className="btn-pill mt-5 w-full">
+            <a href="#booking" className="btn-primary mt-5 w-full">
               {strings.packages.requestQuote}
             </a>
             {whatsappHref ? (
@@ -299,7 +299,7 @@ export default async function PackageDetailPage({ params }: { params: Promise<{ 
                 href={whatsappHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-outline-pill mt-3 w-full gap-2"
+                className="btn-outline mt-3 w-full gap-2"
               >
                 <MessageCircle aria-hidden="true" className="size-4" />
                 {strings.packages.whatsappCta}
@@ -413,12 +413,12 @@ export default async function PackageDetailPage({ params }: { params: Promise<{ 
 function IncludedList({ title, items }: { title: string; items: string[] }) {
   return (
     <section className="rounded-2xl border border-line bg-white p-6 shadow-card">
-      <h2 className="font-heading text-[1.0625rem] font-bold text-ink">{title}</h2>
+      <h2 className="font-heading text-[1.0625rem] font-semibold text-ink">{title}</h2>
       {items.length > 0 ? (
         <ul className="mt-4 space-y-2.5">
           {items.map((entry) => (
-            <li key={entry} className="flex items-start gap-2.5 text-sm text-[#34443C]">
-              <span className="mt-0.5 flex size-[1.125rem] shrink-0 items-center justify-center rounded-full bg-[#D3ECDD] text-brand">
+            <li key={entry} className="flex items-start gap-2.5 text-sm text-ink-soft">
+              <span className="mt-0.5 flex size-[1.125rem] shrink-0 items-center justify-center rounded-full bg-leaf-tint text-leaf">
                 <Check aria-hidden="true" className="size-2.5" strokeWidth={3.5} />
               </span>
               {entry}

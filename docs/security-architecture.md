@@ -1,4 +1,4 @@
-# Security Architecture — Sri Lanka Tours Platform
+# Security Architecture — Go Lanka Platform
 
 **Status:** Draft for approval  
 **Companion:** [implementation-plan.md](./implementation-plan.md)  

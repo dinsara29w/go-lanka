@@ -62,7 +62,7 @@ export default async function TravelInfoPage() {
                   <span className="flex size-[3.25rem] items-center justify-center rounded-xl bg-tint text-brand">
                     <Icon aria-hidden="true" className="size-5" strokeWidth={1.9} />
                   </span>
-                  <h2 className="mt-5 font-heading text-[1.1875rem] font-bold text-ink">
+                  <h2 className="mt-5 font-heading text-[1.1875rem] font-semibold text-ink">
                     {section.title}
                   </h2>
                   {section.summary ? (
