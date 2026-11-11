@@ -77,7 +77,7 @@ export default async function HomePage() {
               <CompassStar className="text-gold" />
               {strings.home.heroEyebrow}
             </p>
-            <h1 className="mt-5 font-heading text-[3rem] leading-[1] font-semibold tracking-[-0.015em] text-white sm:text-[5rem]">
+            <h1 className="mt-5 font-heading text-[2.5rem] leading-[1.05] font-bold tracking-[-0.025em] text-white sm:text-[4rem]">
               {strings.home.heroLine1}
               <br />
               <em className="font-medium text-gold italic">{strings.home.heroLine2}</em>

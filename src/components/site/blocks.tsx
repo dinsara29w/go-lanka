@@ -36,9 +36,7 @@ export function QuoteCard({
       </span>
       <Stars rating={rating} />
       {title ? <p className="font-heading text-base font-semibold text-ink">{title}</p> : null}
-      <blockquote className="font-heading text-[1.0625rem] leading-relaxed text-ink">
-        {body}
-      </blockquote>
+      <blockquote className="text-base leading-relaxed text-ink">{body}</blockquote>
       <figcaption className="mt-auto flex items-center gap-3 pt-2">
         <span
           aria-hidden="true"

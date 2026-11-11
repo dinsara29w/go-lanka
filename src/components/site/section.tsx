@@ -50,7 +50,7 @@ export function SectionHeading({
             {eyebrow}
           </p>
         ) : null}
-        <Tag className="font-heading text-[2rem] leading-[1.1] font-semibold tracking-[-0.01em] text-balance text-ink sm:text-[2.875rem]">
+        <Tag className="font-heading text-[1.75rem] leading-[1.15] font-bold tracking-[-0.02em] text-balance text-ink sm:text-[2.375rem]">
           {title}
           {accent ? (
             <>
@@ -129,7 +129,7 @@ export function PageBanner({
             ))}
           </ol>
         </nav>
-        <h1 className="font-heading text-[2.5rem] leading-[1.05] font-semibold tracking-[-0.01em] text-balance text-white sm:text-[3.625rem]">
+        <h1 className="font-heading text-[2.125rem] leading-[1.1] font-bold tracking-[-0.02em] text-balance text-white sm:text-[3rem]">
           {title}
         </h1>
         {intro ? (
@@ -161,7 +161,7 @@ export function CtaBox({
       <div className="relative isolate mx-auto flex max-w-[60rem] flex-col items-start gap-6 overflow-hidden rounded-[2rem] bg-[linear-gradient(120deg,#0b2a3d_0%,#1b4f6b_62%,#2b6a8c_100%)] px-7 py-10 text-white sm:flex-row sm:items-center sm:justify-between sm:gap-10 sm:px-12 sm:py-12">
         <CompassWatermark className="absolute -top-16 -right-16 -z-10 size-80 text-white/10" />
         <div className="max-w-lg">
-          <h2 className="font-heading text-[1.875rem] leading-tight font-semibold tracking-[-0.01em] text-balance sm:text-[2.375rem]">
+          <h2 className="font-heading text-[1.625rem] leading-tight font-bold tracking-[-0.02em] text-balance sm:text-[2rem]">
             {title}
           </h2>
           <p className="mt-2.5 text-[0.9375rem] leading-relaxed text-white/80 sm:text-base">
