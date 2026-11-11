@@ -8,12 +8,15 @@ import {
   type TourBuilderRequest,
 } from "@/lib/validation/tour-builder";
 import { getTourBuilderContext, type TourBuilderContext } from "@/server/ai/context";
+import { generateItineraryPdf } from "@/server/ai/pdf";
 import { computeQuote, vehiclesForParty } from "@/server/ai/pricing";
 import { generateBookingReference } from "@/server/bookings/reference";
 import { getPublicPool } from "@/server/db/pools";
 import { getServerEnv } from "@/server/env";
 import { getTourBuilderRates } from "@/server/repositories/tour-builder-rates";
 import { getLogger } from "@/server/security/logger";
+import { generateToken, hashToken } from "@/server/security/request";
+import { savePrivatePdf } from "@/server/storage/local";
 
 export class TourBuilderError extends Error {
   constructor(
@@ -32,6 +35,9 @@ export class TourBuilderError extends Error {
 
 export type TourBuilderResult = {
   sessionId: string;
+  /** Private link to the instant quotation PDF; null if it could not be produced. */
+  pdfUrl: string | null;
+  totalLkr: number;
   reference: string;
   itinerary: GeneratedItinerary;
   selectedPackage: { title: string; slug: string } | null;
@@ -332,8 +338,39 @@ export async function generateTourBuilderResult(input: {
     "tour_quote_drafted",
   );
 
+  // The traveller gets the quotation PDF straight away; the team still reviews the quote in admin.
+  input.onProgress?.("preparing your PDF quotation");
+  let pdfUrl: string | null = null;
+  try {
+    const pdf = await generateItineraryPdf({
+      quiz: { ...input.quiz, notes: input.quiz.notes ?? undefined },
+      itinerary,
+      breakdown,
+      totalLkr: breakdown.totalLkr,
+      reference,
+      packageTitle: selectedPackage?.title ?? null,
+      destinations: context.destinations,
+    });
+    const filePath = await savePrivatePdf(pdf);
+    const token = generateToken(32);
+    await pool.query("SELECT create_tour_document($1::uuid, $2::text, $3::text, $4::timestamptz)", [
+      sessionId,
+      hashToken(token),
+      filePath,
+      new Date(Date.now() + 30 * 86_400_000).toISOString(),
+    ]);
+    pdfUrl = `/tour-builder/pdf/${token}`;
+  } catch (error) {
+    getLogger().error(
+      { err: error, event: "tour_pdf_failed", requestId: input.requestId, reference },
+      "tour_pdf_failed",
+    );
+  }
+
   return {
     sessionId,
+    pdfUrl,
+    totalLkr: breakdown.totalLkr,
     reference,
     itinerary,
     selectedPackage: selectedPackage

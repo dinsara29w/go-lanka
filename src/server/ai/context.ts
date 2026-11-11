@@ -11,6 +11,7 @@ export type TourBuilderDestination = {
   highlights: string[];
   lat: number | null;
   lng: number | null;
+  heroImage: string | null;
 };
 
 export type TourBuilderPackage = {
@@ -47,6 +48,7 @@ type DestinationRow = {
   highlights: string[];
   lat: string | null;
   lng: string | null;
+  hero_image: string | null;
 };
 
 type PackageRow = {
@@ -78,7 +80,7 @@ export async function getTourBuilderContext(): Promise<TourBuilderContext> {
   const pool = getPublicPool();
   const [destinationResult, packageResult] = await Promise.all([
     pool.query<DestinationRow>(
-      `SELECT name, slug, region, description, best_season, highlights, lat, lng
+      `SELECT name, slug, region, description, best_season, highlights, lat, lng, hero_image
        FROM destinations ORDER BY name ASC LIMIT 100`,
     ),
     pool.query<PackageRow>(
@@ -138,6 +140,7 @@ export async function getTourBuilderContext(): Promise<TourBuilderContext> {
     highlights: row.highlights,
     lat: row.lat === null ? null : Number(row.lat),
     lng: row.lng === null ? null : Number(row.lng),
+    heroImage: row.hero_image,
   }));
 
   const packages = packageResult.rows.map((row) => ({

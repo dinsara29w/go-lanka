@@ -187,3 +187,48 @@ export async function deletePrivateDocument(relativePath: string): Promise<void>
   const resolved = privateDocumentPath(relativePath);
   if (resolved) await unlink(resolved).catch(() => undefined);
 }
+
+/**
+ * Reads a destination photo (a bundled /places/*.jpg or an uploaded /media/*.webp) and returns a
+ * JPEG cropped to exactly width x height, for embedding in generated PDFs. Null when the file
+ * is missing or unreadable, so a missing photo never blocks a quotation.
+ */
+export async function readImageForPdf(
+  src: string | null | undefined,
+  width: number,
+  height: number,
+): Promise<Buffer | null> {
+  if (!src) return null;
+  let file: string | null = null;
+  const bundled = /^\/places\/([a-z0-9-]+\.jpg)$/.exec(src);
+  if (bundled) {
+    file = path.join(/*turbopackIgnore: true*/ process.cwd(), "public", "places", bundled[1]!);
+  } else if (src.startsWith(PUBLIC_URL_PREFIX)) {
+    file = publicMediaPath(src.slice(PUBLIC_URL_PREFIX.length).split("/"));
+  }
+  if (!file) return null;
+  try {
+    return await sharp(file, { limitInputPixels: MAX_PIXELS })
+      .rotate()
+      .resize({ width, height, fit: "cover", position: "attention" })
+      .jpeg({ quality: 82, mozjpeg: true })
+      .toBuffer();
+  } catch {
+    return null;
+  }
+}
+
+/** The Go Lanka logo as a PNG for PDFs (rasterised from public/brand/golanka-logo.svg). */
+export async function readLogoForPdf(height: number): Promise<Buffer | null> {
+  try {
+    return await sharp(
+      path.join(/*turbopackIgnore: true*/ process.cwd(), "public", "brand", "golanka-logo.svg"),
+      { density: 300 },
+    )
+      .resize({ height })
+      .png()
+      .toBuffer();
+  } catch {
+    return null;
+  }
+}

@@ -36,6 +36,8 @@ type DestinationOption = {
 type TourResult = {
   sessionId: string;
   reference: string;
+  pdfUrl: string | null;
+  totalLkr: number;
   itinerary: GeneratedItinerary;
   selectedPackage: { title: string; slug: string } | null;
   distanceKm: number;
@@ -661,14 +663,29 @@ function TourResultView({
           {result.itinerary.summary}
         </p>
 
-        <div className="rounded-xl bg-tint p-4">
+        <div className="rounded-xl bg-tint p-5">
           <p className="text-sm font-semibold text-ocean">
             {strings.tourBuilder.underReviewHeading}
           </p>
           <p className="mt-1 text-sm leading-6 text-muted-foreground">
-            {strings.tourBuilder.underReviewBody}
+            {result.pdfUrl
+              ? strings.tourBuilder.underReviewBody
+              : strings.tourBuilder.pdfUnavailable}
           </p>
-          <p className="mt-2 text-xs text-muted-foreground">
+          <div className="mt-4 flex flex-wrap items-center gap-4">
+            {result.pdfUrl ? (
+              <a href={result.pdfUrl} download className="btn-gold">
+                {strings.tourBuilder.downloadPdf}
+              </a>
+            ) : null}
+            <div>
+              <p className="text-xs text-muted-foreground">{strings.tourBuilder.estimatedBudget}</p>
+              <p className="font-heading text-2xl font-bold text-ink">
+                <Price amountLkr={result.totalLkr} />
+              </p>
+            </div>
+          </div>
+          <p className="mt-3 text-xs text-muted-foreground">
             {strings.tourBuilder.reference}:{" "}
             <span className="font-mono font-medium">{result.reference}</span>
           </p>

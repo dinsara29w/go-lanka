@@ -28,7 +28,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ tok
     return new Response(new Uint8Array(file), {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": 'attachment; filename="sri-lanka-itinerary.pdf"',
+        "Content-Disposition": 'attachment; filename="go-lanka-quotation.pdf"',
         "Cache-Control": "no-store",
         "X-Content-Type-Options": "nosniff",
       },
