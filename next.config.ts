@@ -6,6 +6,10 @@ const nextConfig: NextConfig = {
   output: process.env.NEXT_STANDALONE === "1" ? "standalone" : undefined,
   poweredByHeader: false,
   reactStrictMode: true,
+  // Temporary demos: comma-separated hosts (e.g. a server IP) allowed to load the dev server.
+  allowedDevOrigins: process.env.ALLOWED_DEV_ORIGINS?.split(",")
+    .map((host) => host.trim())
+    .filter(Boolean),
   serverExternalPackages: ["@node-rs/argon2", "pg", "pino", "sharp"],
   images: {
     // Uploaded media uses unique, immutable filenames, so optimized variants
