@@ -28,6 +28,18 @@
 
 While the site runs on your computer, the tour builder page shows a "Setup checklist" if any of these is missing. Visitors never see it.
 
+## The quotation PDF
+
+As soon as the AI overview is ready, the traveller can download a PDF (30-day private link). It contains:
+
+- Cover with the trip facts and the **estimated budget** for the whole tour (plus per traveller).
+- **Route map** of Sri Lanka drawn by us (no Google Maps key): numbered stops, dashed route, km for each leg and the **total distance**.
+- A photo, description, highlights and best season for **every place** on the route (from each destination's hero image).
+- Day-by-day itinerary, then the **budget breakdown** (hotels and transport) and the total.
+
+The team still reviews the quote in `/admin/quotes`; re-sending from there produces the same PDF with the final price and the team's note.
+Code: `src/server/ai/pdf.ts` (layout), `src/server/ai/tour-builder.ts` (creates it with the quote).
+
 ## Pricing (client rate card, November 2026)
 
 All values are edited in `/admin/rates`; the starting values come from the client.

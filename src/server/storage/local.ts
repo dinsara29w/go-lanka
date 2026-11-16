@@ -187,3 +187,72 @@ export async function deletePrivateDocument(relativePath: string): Promise<void>
   const resolved = privateDocumentPath(relativePath);
   if (resolved) await unlink(resolved).catch(() => undefined);
 }
+
+/**
+ * Reads a destination photo (a bundled /places/*.jpg or an uploaded /media/*.webp) and returns a
+ * JPEG cropped to exactly width x height, for embedding in generated PDFs. Null when the file
+ * is missing or unreadable, so a missing photo never blocks a quotation.
+ */
+export async function readImageForPdf(
+  src: string | null | undefined,
+  width: number,
+  height: number,
+  shade?: {
+    bottom?: number;
+    bottomFraction?: number;
+    top?: number;
+    topFraction?: number;
+    flat?: number;
+  },
+): Promise<Buffer | null> {
+  if (!src) return null;
+  let file: string | null = null;
+  const bundled = /^\/places\/([a-z0-9-]+\.jpg)$/.exec(src);
+  if (bundled) {
+    file = path.join(/*turbopackIgnore: true*/ process.cwd(), "public", "places", bundled[1]!);
+  } else if (src.startsWith(PUBLIC_URL_PREFIX)) {
+    file = publicMediaPath(src.slice(PUBLIC_URL_PREFIX.length).split("/"));
+  }
+  if (!file) return null;
+  try {
+    let image = sharp(file, { limitInputPixels: MAX_PIXELS })
+      .rotate()
+      .resize({ width, height, fit: "cover", position: "centre" });
+    if (shade) {
+      // Navy gradients are baked into the picture so the PDF has no banding or seams.
+      const navy = "#0a2a3f";
+      const stops = (opacity: number) =>
+        `<stop offset="0" stop-color="${navy}" stop-opacity="${opacity}"/><stop offset="1" stop-color="${navy}" stop-opacity="0"/>`;
+      const bottomH = Math.round(height * (shade.bottomFraction ?? 0.5));
+      const topH = Math.round(height * (shade.topFraction ?? 0.25));
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+        `<defs><linearGradient id="b" x1="0" y1="1" x2="0" y2="0">${stops(shade.bottom ?? 0)}</linearGradient>` +
+        `<linearGradient id="t" x1="0" y1="0" x2="0" y2="1">${stops(shade.top ?? 0)}</linearGradient></defs>` +
+        `<rect width="${width}" height="${height}" fill="${navy}" fill-opacity="${shade.flat ?? 0}"/>` +
+        `<rect y="${height - bottomH}" width="${width}" height="${bottomH}" fill="url(#b)"/>` +
+        `<rect width="${width}" height="${topH}" fill="url(#t)"/></svg>`;
+      image = sharp(await image.jpeg({ quality: 90 }).toBuffer()).composite([
+        { input: Buffer.from(svg) },
+      ]);
+    }
+    return await image.jpeg({ quality: 82, mozjpeg: true }).toBuffer();
+  } catch {
+    return null;
+  }
+}
+
+/** The Go Lanka logo as a PNG for PDFs (rasterised from public/brand/golanka-logo.svg). */
+export async function readLogoForPdf(height: number): Promise<Buffer | null> {
+  try {
+    return await sharp(
+      path.join(/*turbopackIgnore: true*/ process.cwd(), "public", "brand", "golanka-logo.svg"),
+      { density: 300 },
+    )
+      .resize({ height })
+      .png()
+      .toBuffer();
+  } catch {
+    return null;
+  }
+}

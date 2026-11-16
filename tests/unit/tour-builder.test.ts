@@ -207,6 +207,7 @@ describe("itinerary PDF", () => {
           highlights: [],
           lat: 6.9271,
           lng: 79.8612,
+          heroImage: null,
         },
       ],
     });

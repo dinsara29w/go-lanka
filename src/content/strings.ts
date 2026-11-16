@@ -327,9 +327,13 @@ export const strings = {
     building: "Building your itinerary…",
     progressStarting: "Getting started",
     resultHeading: "Your suggested itinerary",
-    underReviewHeading: "Your quotation is being reviewed",
+    underReviewHeading: "Your quotation is ready",
     underReviewBody:
-      "The team is checking the route and price. We will send your quotation by email or WhatsApp within one business day.",
+      "Download the PDF for your estimated budget, total distance, route map, and photos and descriptions of every place. Add your contact details below and the team will confirm availability and the final price.",
+    downloadPdf: "Download quotation (PDF)",
+    pdfUnavailable:
+      "We could not create the PDF just now. Send your details below and the team will email it to you.",
+    estimatedBudget: "Estimated budget",
     reference: "Reference",
     dayLabel: "Day",
     selectedPackage: "Base package",
